@@ -1,0 +1,56 @@
+# Compiled object files
+*.o
+*.obj
+
+# Compiled binaries
+*.exe
+*.out
+*.bin
+
+# Linker output
+*.map
+*.exp
+*.ilk
+
+# Debug files
+*.pdb
+*.dSYM/
+*.dbg
+
+# Listing files
+*.lst
+*.lss
+
+# Archives
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+
+# Build directories
+/build/
+/dist/
+/Debug/
+/Release/
+
+# IDE specific
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.vcxproj.*
+*.ncb
+*.sdf
+*.opensdf
+
+# Xcode
+*.xcworkspace
+*.xcuserstate
+*.xcuserdata/
+
+# macOS
+.DS_Store
+
+# Linux
+*.swp
