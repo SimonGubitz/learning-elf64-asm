@@ -9,5 +9,5 @@ new-project:
 
 
 run:
-	docker build -t $(DOCKER_NAME) .
-	docker run -it --platform linux/amd64 -v $$(pwd):/app $(DOCKER_NAME)
+	docker build -t $(DOCKER_NAME) --platform linux/amd64 .
+	docker run -it -v $$(pwd):/app $(DOCKER_NAME)
