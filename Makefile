@@ -3,7 +3,8 @@ PROJECT := $(word 2,$(MAKECMDGOALS))
 
 new-project:
 	mkdir -p $(PROJECT)/src
-	touch $(PROJECT)/src/$(PROJECT).asm
+	cp asm.template $(PROJECT)/src/$(PROJECT).asm
+	sed -i '' "s|REPLACE_THIS|$(PROJECT)|g" $(PROJECT)/src/$(PROJECT).asm
 	cp Makefile.template $(PROJECT)/Makefile
 	sed -i '' "s|REPLACE_THIS|$(PROJECT)|g" $(PROJECT)/Makefile
 
