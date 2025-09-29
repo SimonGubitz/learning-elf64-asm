@@ -1,55 +1,93 @@
 ; calculator.asm
 
 section .bss
-    first_num_input resb
-    second_num_input resb
-    operator_input resw
+    input_buf   resw 1
+    num1        resq 1
+    num2        resq 1
 
 section .data
-    input_msg_stnum db "Enter the first Number: "
-    input_len_stnum equ $ - input_msg_stnum
+    newln db 0xa
 
-    input_msg_ndnum db "Enter the second Number: "
-    input_len_ndnum equ $ - input_msg_ndnum
+    first_num_prompt db "Enter the first number: ", 0x0
+    first_num_prompt_len equ $ - first_num_prompt
 
-    input_msg_op db "Enter the operation ( +, -, /, * ):"
-    input_len_op equ $ - input_msg_op
+    second_num_prompt db "Enter the second number: ", 0x0
+    second_num_prompt_len equ $ - second_num_prompt
+
+    op_prompt db "Enter the operator ( +, -, /, * ):", 0x0
+    op_prompt_len equ $ - op_prompt
+
+    res_output db "The Result is: NN", 0xa
+    res_output_len equ $ - res_output
+
 
 section .text
 global _start
 
 _start:
-    mov rax, 1              ; syscall 1 -> sys_write
-    mov rdi, 1              ; fd: stdout
-    mov rsi, input_msg_stnum
-    mov rdx, input_len_stnum
-    syscall
+
+    mov rsi, first_num_prompt
+    mov rdx, first_num_prompt_len
+    call _write
+
+    mov rsi, input_buf
+    mov rdx, 8
+    call _read
+
+    mov rdi, input_buf
+    call _atoi
+    mov [num1], rax
+
+    ; WARNING: Write does not write literals, but only from memory addresses
+    
 
 
-    mov rax, 0  ; sys_read
-    mov rdi, 0  ; fd: stdin
-    mov rsi, first_num_input
+    mov rsi, newln
     mov rdx, 1
+    call _write
+
+    jmp _exit
+
+_atoi:
+    xor rax, rax
+.inc_char:
+    movzx rsi, byte [rdi]   ; working, because this only affects the FIRST byte at that address, which will be increase below
+                            ; and movzx, to fill up the rest of rsi (8 bytes) with zero extend (movZX)
+    test rsi, register      ; at the zero extend -> finished
+    je .success
+
+    cmp rsi, '0'
+    jl .error
+
+    cmp rsi, '9'
+    jg .error
+
+
+    sub rsi, '0'
+    imul rax, 10
+    add rax, rsi
+
+
+    inc rdi             ; increase the pointer offset??
+    jmp .inc_char
+.error:
+    mov rax, -1
+.success:
+    ret
+
+_write:
+    mov rax, 1
+    mov rdi, 1  ; stdout
     syscall
+    ret
 
-
-    ; clean up
-
-    mov rax, 60 ; exit
+_read:
+    mov rax, 0
+    mov rdi, 0
     syscall
+    ret
 
-_add:
-    add rdi, rsi
-    mov rax, rdi    ; mov rdi into rax <- return register
-
-_sub:
-    sub rdi, rsi
-    mov rax, rdi
-
-_div:
-    div rdi, rsi
-    mov rax, rdi
-
-_mul:
-    mul rdi, rsi
-    mov rax, rdi
+_exit:
+    mov rax, 60
+    xor rdi, rdi ; 0 no error
+    syscall

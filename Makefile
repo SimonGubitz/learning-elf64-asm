@@ -11,4 +11,4 @@ new-project:
 
 run:
 	docker build -t $(DOCKER_NAME) --platform linux/amd64 .
-	docker run -it -v $$(pwd):/app $(DOCKER_NAME)
+	docker run -it --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $$(pwd):/app $(DOCKER_NAME)

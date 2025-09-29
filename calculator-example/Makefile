@@ -1,11 +1,11 @@
 ASM = nasm
-ASMFLAGS = -f elf64 -g -F dwarf
+ASMFLAGS = -f elf64
 LD = ld
 LDFLAGS =
 
-SRC = src/calculator.asm
-OBJ = build/calculator.o
-BIN = build/calculator
+SRC = src/calculator-example.asm
+OBJ = build/calculator-example.o
+BIN = build/calculator-example
 
 all: $(BIN)
 
