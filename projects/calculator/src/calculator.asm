@@ -101,16 +101,17 @@ _atoi:
 .success:
     ret
 
-; Needs the string in rsi
-; Clobbers rcx, r8, rdi = pointer to byte in string
+; Needs the number in rsi
+; Clobbers rcx, r8, rdx, rdi = pointer to the digit
 ; Returns in rax
 _itoa:
     xor rax, rax
-.inc_char:
+.inc_digit:
     ; mov number to rax
     mov rax, rsi        ; rsi needs to be set first
     mov rcx, 10
-    div rcx             ; the reserve is in rdx
+    div rcx             ; divide rax by rcx (10)
+                        ; the reserve is in rdx
 
     cmp rdx, 0
     jg .error
@@ -126,7 +127,7 @@ _itoa:
     add r8, '0'
 
     inc rdi
-    jmp .inc_char
+    jmp .inc_digit
 .error:
     mov rax, -1
 .success:
