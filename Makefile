@@ -3,12 +3,12 @@ PROJECT := $(word 2, $(MAKECMDGOALS))
 
 new-project:
 	mkdir -p projects/$(PROJECT)/src
-	cp asm.template projects/$(PROJECT)/src/$(PROJECT).asm
-	sed -i.bak "s|REPLACE_THIS|$(PROJECT)|g" projects/$(PROJECT)/src/$(PROJECT).asm && rm *.bak
-	cp Makefile.template projects/$(PROJECT)/Makefile
-	sed -i.bak "s|REPLACE_THIS|$(PROJECT)|g" projects/$(PROJECT)/Makefile && rm *.bak
-	cp README.template projects/$(PROJECT)/README.md
-	sed -i.bak "s|REPLACE_THIS|$(PROJECT)|g" projects/$(PROJECT)/README.md && rm *.bak
+	cp templates/asm.template projects/$(PROJECT)/src/$(PROJECT).asm
+	sed -i.bak "s|REPLACE_THIS|$(PROJECT)|g" projects/$(PROJECT)/src/$(PROJECT).asm && rm projects/$(PROJECT)/src/*.bak
+	cp templates/Makefile.template projects/$(PROJECT)/Makefile
+	sed -i.bak "s|REPLACE_THIS|$(PROJECT)|g" projects/$(PROJECT)/Makefile && rm projects/$(PROJECT)/*.bak
+	cp templates/README.template projects/$(PROJECT)/README.md
+	sed -i.bak "s|REPLACE_THIS|$(PROJECT)|g" projects/$(PROJECT)/README.md && rm projects/$(PROJECT)/*.bak
 
 
 run:
