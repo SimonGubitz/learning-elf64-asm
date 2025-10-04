@@ -30,7 +30,7 @@ section .data
     op_prompt db "Enter the operator ( +, -, /, * ):", 0x0
     op_prompt_len equ $ - op_prompt
 
-    res_output db "The Result is:", 0x0
+    res_output db "The Result is: ", 0x0
     res_output_len equ $ - res_output
 
 
@@ -39,6 +39,7 @@ global _start
 
 _start:
 
+    ; Read in the first number
     mov rsi, first_num_prompt
     mov rdx, first_num_prompt_len
     call _write
@@ -51,10 +52,11 @@ _start:
     call _atoi
     mov [num1], rax
 
+
+    ; Read in the first number
     mov rsi, second_num_prompt
     mov rdx, second_num_prompt_len
     call _write
-
 
     mov rsi, input_buf
     mov rdx, 8
@@ -64,6 +66,7 @@ _start:
     call _atoi
     mov [num2], rax
 
+    ; Read in the operator
     mov rsi, op_prompt
     mov rdx, op_prompt_len
     call _write
@@ -72,23 +75,38 @@ _start:
     mov rdx, 2          ; one byte for the operator and one for the null-terminator
     call _read
 
+    ; Conditional calculation
     cmp byte[input_buf], '+'
-    je _add
+    jne .skip_add
+    call _add
+.skip_add:
     cmp byte[input_buf], '-'
-    je _sub
+    jne .skip_sub
+    call _sub
+.skip_sub:
     cmp byte[input_buf], '/'
-    je _div
+    jne .skip_div
+    call _div
+.skip_div:
     cmp byte[input_buf], '*'
-    je _mul
+    jne .skip_mul
+    call _mul
+.skip_mul:
 
+    ; Stringify the result
     mov rsi, rax
     call _itoa
 
-    mov rsi, itoa_buff
+    ; Display the result
+    mov rsi, res_output     ; The Result is:
+    mov rdx, res_output_len
+    call _write
+
+    mov rsi, itoa_buff      ; <result>
     mov rdx, rdi
     call _write
 
-    mov rsi, newln
+    mov rsi, newln          ; /n
     mov rdx, 1
     call _write
 
