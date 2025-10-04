@@ -18,3 +18,10 @@ section .text
 global _start
 
 _start:
+
+    jmp _exit
+
+_exit:
+    mov rax, SYS_EXIT
+    xor rdi, rdi ; 0 no error
+    syscall
