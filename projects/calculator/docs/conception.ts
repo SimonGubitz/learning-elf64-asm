@@ -1,10 +1,3 @@
-# Conceptual Simulation: `_itoa` in TypeScript
-
-This file (`conception.ts`) is a **high-level simulation** of the `_itoa` routine used in `src/calculator.asm`.
-
-It is **not meant to be compiled or run**, but rather to help mentally build a real model on how to implement it in asm.
-
-```TypeScript
 const buffer: any[] = []; // in .bss
 
 
@@ -55,4 +48,3 @@ function itoa(number: number): string {
 
 const x = itoa(123);
 console.log(x, typeof x); // expected: 123, string
-```

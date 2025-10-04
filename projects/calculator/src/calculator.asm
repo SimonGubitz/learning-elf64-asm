@@ -9,13 +9,17 @@ STD_IN      equ 0x0
 
 
 section .bss
-    input_buf   resw 1
-    output_buf  resw 1
+    itoa_buff   resb 32
+    input_buf   resb 32
+    output_buf  resb 32
     num1        resq 1
     num2        resq 1
 
 section .data
     newln db 0xa
+
+    inside_calc db "Inside Calc", 0xa
+    inside_calc_len equ $ - inside_calc
 
     first_num_prompt db "Enter the first number: ", 0x0
     first_num_prompt_len equ $ - first_num_prompt
@@ -26,7 +30,7 @@ section .data
     op_prompt db "Enter the operator ( +, -, /, * ):", 0x0
     op_prompt_len equ $ - op_prompt
 
-    res_output db "The Result is: NNN", 0xa
+    res_output db "The Result is:", 0x0
     res_output_len equ $ - res_output
 
 
@@ -51,6 +55,7 @@ _start:
     mov rdx, second_num_prompt_len
     call _write
 
+
     mov rsi, input_buf
     mov rdx, 8
     call _read
@@ -59,14 +64,29 @@ _start:
     call _atoi
     mov [num2], rax
 
-
-    mov rsi, [num2]
-    call _itoa
-
-    mov rsi, rax
-    mov rdx, 8
+    mov rsi, op_prompt
+    mov rdx, op_prompt_len
     call _write
 
+    mov rsi, input_buf
+    mov rdx, 2          ; one byte for the operator and one for the null-terminator
+    call _read
+
+    cmp byte[input_buf], '+'
+    je _add
+    cmp byte[input_buf], '-'
+    je _sub
+    cmp byte[input_buf], '/'
+    je _div
+    cmp byte[input_buf], '*'
+    je _mul
+
+    mov rsi, rax
+    call _itoa
+
+    mov rsi, itoa_buff
+    mov rdx, rdi
+    call _write
 
     mov rsi, newln
     mov rdx, 1
@@ -74,6 +94,9 @@ _start:
 
     jmp _exit
 
+; Needs the address of the string in rdi
+; Clobbers rax, rdi
+; Returns the int in
 _atoi:
     xor rax, rax
 .inc_char:
@@ -103,35 +126,68 @@ _atoi:
 
 ; Needs the number in rsi
 ; Clobbers rcx, r8, rdx, rdi = pointer to the digit
-; Returns in rax
+; Returns in itoa_buffer & rdi = number of bytes written
 _itoa:
-    xor rax, rax
-.inc_digit:
-    ; mov number to rax
-    mov rax, rsi        ; rsi needs to be set first
-    mov rcx, 10
-    div rcx             ; divide rax by rcx (10)
-                        ; the reserve is in rdx
+    xor rdi, rdi       ; buffer index
+    mov r8, rsi        ; working number
+    mov rcx, 10        ; divisor
 
-    cmp rdx, 0
-    jg .error
+.next_digit:
+    test r8, r8
+    je .reverse_buff   ; jump to reverse after loop
 
-    cmp rdx, 9
-    jg .error
-
-    ; error hmmmm -> movzx, would destroy the record though -> no because thats "below"
-    ; means using ah/al??
-    movzx r8, byte[rdi]   ; write the current byte -> char into r8, at the rdi offset
-
-    ; add '0'/48 as to get the ascii code
-    add r8, '0'
-
-    inc rdi
-    jmp .inc_digit
-.error:
-    mov rax, -1
-.success:
     mov rax, r8
+    xor rdx, rdx
+    idiv rcx
+
+    add dl, '0'
+    mov byte[itoa_buff+rdi], dl
+
+    mov r8, rax
+    inc rdi
+    jmp .next_digit
+
+.reverse_buff:
+    mov rsi, itoa_buff
+    mov rdx, rdi       ; rdx = length of digits
+    dec rdx            ; last valid index
+    xor r8, r8         ; r8 = start index
+
+.rev_loop:
+    cmp r8, rdx
+    jge .done_reverse
+
+    mov al, [rsi+r8]
+    mov bl, [rsi+rdx]
+    mov [rsi+r8], bl
+    mov [rsi+rdx], al
+    inc r8
+    dec rdx
+    jmp .rev_loop
+
+.done_reverse:
+    ret                ; rdi still contains the number of bytes written
+
+_add:
+    mov rax, [num1]
+    add rax, [num2]
+    ret
+
+_sub:
+    mov rax, [num1]
+    sub rax, [num2]
+    ret
+
+_mul:
+    mov rax, [num1]
+    mov rdx, [num2]
+    imul rdx
+    ret
+
+_div:
+    mov rax, [num1]
+    mov rdx, [num2]
+    idiv rdx
     ret
 
 _write:
@@ -144,6 +200,8 @@ _read:
     mov rax, SYS_READ
     mov rdi, STD_IN
     syscall
+
+    mov byte [input_buf + rax - 1], 0
     ret
 
 _exit:
