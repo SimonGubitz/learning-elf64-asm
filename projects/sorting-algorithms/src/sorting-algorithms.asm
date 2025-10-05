@@ -14,14 +14,19 @@ section .bss
     itoa_buff resb 32
 
 section .data
-    arr times arr_len dd 0     ; 100 Element @ 4 Byte (int) array
+    newln db 0xa
+    arr times arr_len dd 0     ; 100 Element @ 4 Byte (int) array -> 32 bit
+    ; arr times arr_len dq 0      ; 100 Element @ 8 byte (long long) array -> 64 bit
 
 
 section .text
 global _start
 
 _start:
+    mov r8, arr
     call _fill_arr_random
+
+    call _selection_sort
 
     jmp _exit
 
@@ -36,17 +41,8 @@ _fill_arr_random:
     cmp rcx, arr_len
     jz .done
 
-    rdrand edx
-    mov [arr + rcx*4], edx
-
-    mov esi, edx
-    call _itoa
-
-    mov rsi, itoa_buff
-    mov rdx, rdi
-    call _write
-
-    mov rsi, itoa_buff
+    ; rdrand edx
+    ; mov [arr + rcx*4], edx
 
     inc rcx
     jmp .inc_counter
@@ -55,8 +51,11 @@ _fill_arr_random:
 
 
 ; Needs the number in rsi
-; Clobbers rcx, r8, rdx, rdi = pointer to the digit
-; Returns in itoa_buffer & rdi = number of bytes written
+; Clobbers  rcx,
+;           r8,
+;           rdx,
+;           rdi = pointer to the digit
+; Returns in `itoa_buffer` & rdi = number of bytes written
 _itoa:
     xor rdi, rdi       ; buffer index
     mov r8, rsi        ; working number
