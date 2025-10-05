@@ -9,6 +9,9 @@ section .data
 section .text
 global _selection_sort
 
+; Needs arr = the .data array
+;       rax = length of the array
+;
 ; Clobbers  rcx as the arr counter,
 ;           rdx as the min
 ;           rbx as the second counter
@@ -23,15 +26,15 @@ _selection_sort:
     xor rdi, rdi
 .loop:
 
-    test rcx, rcx
-    jz .loop_end
+    cmp rcx, rax
+    je .loop_end        ; obviously always returns zero
 
     ; keep in mind that we order 4 byte ints -> 32 bit -> e registers
     mov rbx, rcx        ;   j = i
     mov rdx, rcx        ; min = i
     .inner_loop:
-        test rbx, rbx
-        jz .inner_loop_end
+        cmp rbx, rax
+        je .inner_loop_end
 
         mov r8d, dword[arr + rdx*4]
         cmp dword[arr + rbx*4], r8d

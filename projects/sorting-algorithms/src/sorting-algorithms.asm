@@ -42,14 +42,15 @@ _start:
     call _getTickCount64
     mov r8, rax
 
+    mov rax, arr_len
     call _selection_sort
 
     ; capture end in r8
     call _getTickCount64
     mov r9, rax
 
-    mov rdi, r8
-    sub rdi, r9
+    mov rdi, r9
+    sub rdi, r8
     mov rsi, time_buff
     mov r8, rdi    ; array accesses
     call _itoa
