@@ -96,6 +96,7 @@ _start:
     ; Stringify the result
     mov rsi, rax
     call _itoa
+    mov r9, rdi             ; rdi get clobbered later, so save in r9
 
     ; Display the result
     mov rsi, res_output     ; The Result is:
@@ -103,7 +104,7 @@ _start:
     call _write
 
     mov rsi, itoa_buff      ; <result>
-    mov rdx, rdi
+    mov rdx, r9             ; the `unclobbered` rdi
     call _write
 
     mov rsi, newln          ; /n
