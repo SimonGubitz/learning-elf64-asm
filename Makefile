@@ -1,5 +1,9 @@
 DOCKER_NAME := asm-elf64
 PROJECT := $(word 2, $(MAKECMDGOALS))
+UNAME_S := $(shell uname -s)	# Linux, Darwin
+UNAME_P := $(shell uname -p)	# x86_64, ARM
+
+.PHONY: new-project debug
 
 new-project:
 	mkdir -p projects/$(PROJECT)/src
@@ -10,9 +14,38 @@ new-project:
 	cp templates/README.template projects/$(PROJECT)/README.md
 	sed -i.bak "s|REPLACE_THIS|$(PROJECT)|g" projects/$(PROJECT)/README.md && rm projects/$(PROJECT)/*.bak
 
+setup-mac-debug:
+	mkdir -p debug
+
+	curl -L https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/alpine-standard-3.20.0-x86_64.iso \
+	-o ./debug/x86_64-alpine.iso
+
+	qemu-img create -f qcow2 ./debug/x86_64-alpine.qcow2 2G
+
+	qemu-system-x86_64 \
+	-m 4G \
+	-cpu qemu64 \
+	-machine accel=tcg \
+	-cdrom ./debug/x86_64-alpine.iso \
+	-drive file=./debug/x86_64-alpine.qcow2,format=qcow2 \
+	-fsdev local,id=fsdev0,path=$(shell pwd),security_model=none \
+	-device virtio-9p-pci,fsdev=fsdev0,mount_tag=hostshare \
+	-boot d \
+	-nographic
+
+
+
 
 debug:
-	
+	qemu-system-x86_64 \
+		-m 4G \
+		-cpu max \
+		-M pc-q35-9.2 \
+		-machine accel=tcg \
+		-drive file=./debug/x86_64-alpine.qcow2,format=qcow2 \
+		-fsdev local,id=fsdev0,path=$(shell pwd),security_model=none \
+		-device virtio-9p-pci,fsdev=fsdev0,mount_tag=hostshare \
+		-nographic
 
 run:
 	docker build -t $(DOCKER_NAME) --platform linux/amd64 .

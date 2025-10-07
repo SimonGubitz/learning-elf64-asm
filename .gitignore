@@ -34,6 +34,9 @@
 **/Debug/*
 **/Release/*
 
+# Debug directories
+**/debug/*
+
 # IDE specific
 # Visual Studio
 .vs/
