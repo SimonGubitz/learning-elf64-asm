@@ -9,6 +9,9 @@ new-project:
 	sed -i '' "s|REPLACE_THIS|$(PROJECT)|g" $(PROJECT)/Makefile
 
 
+debug:
+	
+
 run:
 	docker build -t $(DOCKER_NAME) --platform linux/amd64 .
 	docker run -it -v $$(pwd):/app $(DOCKER_NAME)
