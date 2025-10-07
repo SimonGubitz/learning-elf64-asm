@@ -11,6 +11,9 @@ new-project:
 	sed -i.bak "s|REPLACE_THIS|$(PROJECT)|g" projects/$(PROJECT)/README.md && rm projects/$(PROJECT)/*.bak
 
 
+debug:
+	
+
 run:
 	docker build -t $(DOCKER_NAME) --platform linux/amd64 .
 	docker run --rm -it \
