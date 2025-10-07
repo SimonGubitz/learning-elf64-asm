@@ -29,10 +29,10 @@
 *.dylib
 
 # Build directories
-**/build/**
-**/dist/**
-**/Debug/**
-**/Release/**
+**/build/*
+**/dist/*
+**/Debug/*
+**/Release/*
 
 # IDE specific
 # Visual Studio
