@@ -30,8 +30,9 @@ Crossplatform debugging is harder, depending on the system architecture of the h
 
 ### Current Projects
 
-- Hello World
-- Calculator (WIP)
+- [Hello World](./projects/hello/)
+- [Calculator](./projects/calculator/)
+- [Sorting Algorithms (WIP)](./projects/sorting-algorithms/)
 
 ### How to create a new project
 
