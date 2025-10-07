@@ -5,7 +5,7 @@ char hello[] = "hello";
 
 int main() {
 
-    printf(hello);
+    printf("%s", hello);
 
     return 0;
 }

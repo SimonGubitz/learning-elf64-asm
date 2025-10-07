@@ -1,0 +1,20 @@
+; REPLACE_THIS.asm
+
+SYS_WRITE   equ 0x1
+SYS_READ    equ 0x0
+SYS_EXIT    equ 0x3c
+
+STD_OUT     equ 0x1
+STD_IN      equ 0x0
+
+
+section .bss
+
+
+section .data
+
+
+section .text
+global _start
+
+_start:
