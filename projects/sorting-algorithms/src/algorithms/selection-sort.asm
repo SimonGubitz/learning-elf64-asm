@@ -16,9 +16,10 @@ global _selection_sort
 ;           rdx as the min
 ;           rbx as the second counter
 ;           rsi as the temp/swap value
-;           r8  as a temp dereferencing register
+;           r8d as a temp dereferencing register
 ;
 ; Returns   rdi = array accesses
+;           arr = sorted in place
 _selection_sort:
     xor rcx, rcx
     xor rdx, rdx
