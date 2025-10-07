@@ -110,15 +110,15 @@ _start:
 
 
 _debug_display_arr:
-    xor rcx, rcx
-
+    push r12
+    xor r12, r12
 .loop_display:
 
-    cmp rcx, arr_len
+    cmp r12, arr_len
     jge .loop_display_end
 
     ; itoa
-    mov  r8d, dword[arr + rcx*4]
+    mov  r8d, dword[arr + r12*4]
     mov rsi, itoa_buff
     call _itoa
 
@@ -126,9 +126,10 @@ _debug_display_arr:
     mov rdx, rdi ; rdx = length of the string
     call _write
 
-    inc rcx
+    inc r12
     jmp .loop_display
 .loop_display_end:
+    pop r12
     ret
 
 
