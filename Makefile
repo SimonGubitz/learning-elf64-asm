@@ -1,7 +1,8 @@
 DOCKER_NAME := asm-elf64
+FAV_WSL_DISTRO := Ubuntu
 PROJECT := $(word 2, $(MAKECMDGOALS))
 UNAME_S := $(shell uname -s)	# Linux, Darwin
-UNAME_P := $(shell uname -p)	# x86_64, ARM
+IS_WINDOWS := $(shell [ "$(OS)" = "Windows_NT" ] && echo yes)
 
 .PHONY: new-project debug
 
@@ -35,8 +36,9 @@ setup-mac-debug:
 
 
 
-
+# Mac: use cpu max to be able to run rdrand and similar instructions
 debug:
+ifeq ($(strip $(UNAME_S)),Darwin)
 	qemu-system-x86_64 \
 		-m 4G \
 		-cpu max \
@@ -46,6 +48,17 @@ debug:
 		-fsdev local,id=fsdev0,path=$(shell pwd),security_model=none \
 		-device virtio-9p-pci,fsdev=fsdev0,mount_tag=hostshare \
 		-nographic
+else
+ifeq ($(strip $(UNAME_S)),Linux)
+	@echo "Running on native Linux → no emulation needed"
+else
+ifeq ($(IS_WINDOWS),yes)
+	wsl --distribution $(FAV_WSL_DISTRO)
+else
+	@echo "Unknown OS, cannot run debug"
+endif
+endif
+endif
 
 run:
 	docker build -t $(DOCKER_NAME) --platform linux/amd64 .
