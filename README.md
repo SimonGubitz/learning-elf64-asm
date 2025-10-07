@@ -13,7 +13,7 @@ Files are automatically updated, as the volume is shared between the emulated sy
 
 ## How to debug
 
-Generally its easy to debug any project. Use the `make debug` target to start directly in debug mode.
+Generally its easy to debug any project. Use the `make debug <project-name>` target to start directly in debug mode.
 
 ### Linux
 
