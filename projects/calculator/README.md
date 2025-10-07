@@ -5,5 +5,5 @@ A simple calculator asking for 2 numbers and the operation that should be perfor
 ## Goals
 
 - [x] Input & Output
-- [ ] AtoI & ItoA
-- [ ] calculation
+- [x] AtoI & ItoA
+- [x] Calculation
