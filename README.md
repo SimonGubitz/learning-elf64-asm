@@ -23,8 +23,8 @@ The most straightforward, in here GDB obviously works natively.
 
 Crossplatform debugging is harder, depending on the system architecture of the host machine. On Apple Silicon Macs, debugging does not work inside the Docker Container due to QEMU emulation, not allowing ptrace or strace calls.
 
-- On **Windows** running the project in WSL on a linux disto works fine.
-- On **Mac** using [QEMU](https://www.qemu.org/) full system emulation, which gives more optionality than what Docker uses is the only real choice to actually get access to the registers.
+- On **Windows** running the project in WSL on a linux disto works fine. [See more](./docs/gdb-windows.md)
+- On **Mac** using [QEMU](https://www.qemu.org/) full system emulation, which gives more optionality than what Docker uses is the only real choice to actually get access to the registers. [See more](./docs/gdb-mac.md)
 
 ## Projects
 
