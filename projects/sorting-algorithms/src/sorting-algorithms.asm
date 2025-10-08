@@ -9,7 +9,7 @@ SYS_EXIT    equ 0x3c
 STD_OUT     equ 0x1
 STD_IN      equ 0x0
 
-arr_len equ 10000
+arr_len equ 5
 
 section .bss
     itoa_buff resb 32
@@ -33,6 +33,9 @@ section .data
     total_arr_access db "- Total Array Accesses: ", 0x0
     total_arr_access_len equ $ - total_arr_access
 
+    divider db "----------", 0xa
+    divider_len equ $ - divider
+
 
 section .text
 global _start
@@ -40,6 +43,13 @@ global _start
 _start:
 
     call _fill_arr_random
+    call _debug_display_arr
+
+    mov rsi, divider
+    mov rdx, divider_len
+    call _write
+
+    call _selection_sort
     call _debug_display_arr
 
     jmp _exit
@@ -126,6 +136,10 @@ _debug_display_arr:
     mov rdx, rdi ; rdx = length of the string
     call _write
 
+    mov rsi, newln
+    mov rdx, 1
+    call _write
+
     inc r12
     jmp .loop_display
 .loop_display_end:
@@ -164,7 +178,7 @@ _itoa:
     mov rcx, 10        ; divisor
 
     ; If r8 = 0 then return 0
-    cmp byte[rsi], 0
+    cmp r8, 0
     jz .zero_done
 
 .next_digit:
@@ -183,8 +197,7 @@ _itoa:
     jmp .next_digit
 
 .reverse_buff:
-    mov rdx, rdi       ; rdx = length of digits
-    dec rdx            ; last valid index
+    lea rdx, [rdi - 1] ; last valid index
     xor r8, r8         ; r8 = start index
 .rev_loop:
     cmp r8, rdx
