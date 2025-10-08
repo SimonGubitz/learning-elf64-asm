@@ -28,7 +28,7 @@ _selection_sort:
 .loop:
 
     cmp rcx, rax
-    je .loop_end        ; obviously always returns zero
+    je .loop_end
 
     ; keep in mind that we order 4 byte ints -> 32 bit -> e registers
     mov rbx, rcx        ;   j = i
@@ -38,9 +38,9 @@ _selection_sort:
         je .inner_loop_end
 
         mov r8d, dword[arr + rdx*4]
-            cmp dword[arr + rbx*4], r8d
+        cmp r8d, dword[arr + rbx*4]
         add rdi, 2
-        jge .skip_update_min
+        jge .skip_update_min        ; always skips, but r8d is correct
         mov rdx, rbx    ; min = j
         .skip_update_min:
 
@@ -50,13 +50,14 @@ _selection_sort:
 
 
     mov r8d, dword[arr + rcx*4]
-    cmp dword[arr + rdx*4], r8d
-    jg .skip_swap
+    cmp r8d, dword[arr + rdx*4]     ;
+    add rdi, 2                      ;
+    jg .skip_swap                   ; if ( arr[min] < arr[i] )
     mov esi, dword[arr + rcx*4]
     mov r8d, dword[arr + rdx*4]
     mov dword[arr + rcx*4], r8d
     mov dword[arr + rdx*4], esi
-    add rdi, 3
+    add rdi, 4
     .skip_swap:
 
     inc rcx

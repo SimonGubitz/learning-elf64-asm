@@ -30,6 +30,7 @@
 
 # Build directories
 **/build/*
+!**/build/gdbcmds.txt
 **/dist/*
 **/Debug/*
 **/Release/*

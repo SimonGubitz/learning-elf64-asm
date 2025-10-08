@@ -43,13 +43,14 @@ global _start
 
 _start:
 
-    call _fill_arr_random
+    ;call _fill_arr_random
     call _debug_display_arr
 
     mov rsi, divider
     mov rdx, divider_len
     call _write
 
+    mov rax, arr_len
     call _selection_sort
     call _debug_display_arr
 

@@ -61,9 +61,18 @@ endif
 endif
 
 run:
+ifeq ($(strip $(UNAME_S)),Linux)
+ifndef ($(PROJECT))
+	cd projects
+else
+	cd projects/$(PROJECT)
+	./build/$(PROJECT)
+endif
+else # on Mac or Windows
 	docker build -t $(DOCKER_NAME) --platform linux/amd64 .
 	docker run --rm -it \
 		--platform linux/amd64 \
 		-v $$(pwd)/projects:/app/projects \
 		-w /app/projects/$(PROJECT) \
 		$(DOCKER_NAME)
+endif
