@@ -28,7 +28,7 @@ _selection_sort:
 .loop:
 
     cmp rcx, rax
-    je .loop_end        ; obviously always returns zero
+    je .loop_end
 
     ; keep in mind that we order 4 byte ints -> 32 bit -> e registers
     mov rbx, rcx        ;   j = i
