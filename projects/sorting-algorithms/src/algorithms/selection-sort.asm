@@ -38,7 +38,7 @@ _selection_sort:
         je .inner_loop_end
 
         mov r8d, dword[arr + rdx*4]
-        cmp dword[arr + rbx*4], r8d
+            cmp dword[arr + rbx*4], r8d
         add rdi, 2
         jge .skip_update_min
         mov rdx, rbx    ; min = j

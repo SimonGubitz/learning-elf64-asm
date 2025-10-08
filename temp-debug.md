@@ -24,8 +24,6 @@ is the fix
 lea rsi, itoa_buff
 ```
 
-yessirsky, well no it just works now
-
 ## Findings
 
 because debugging revealed a correct calculation for `dl`

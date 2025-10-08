@@ -9,7 +9,7 @@ SYS_EXIT    equ 0x3c
 STD_OUT     equ 0x1
 STD_IN      equ 0x0
 
-arr_len equ 5
+arr_len equ 10
 
 section .bss
     itoa_buff resb 32
@@ -18,7 +18,8 @@ section .bss
 
 section .data
     newln db 0xa
-    arr times arr_len dd 0     ; 100 Element @ 4 Byte (int) array -> 32 bit
+    ; arr times arr_len dd 0     ; 100 Element @ 4 Byte (int) array -> 32 bit
+    arr times arr_len dd 832, 32, 499, 427, 3, 6, 9, 1, 5, 2
     ; arr times arr_len dq 0      ; 100 Element @ 8 byte (long long) array -> 64 bit
 
     elements db "- For 10000 Elements: ", 0xa
