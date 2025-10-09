@@ -6,6 +6,9 @@ IS_WINDOWS := $(shell [ "$(OS)" = "Windows_NT" ] && echo yes)
 
 .PHONY: new-project debug
 
+all:
+	@echo "Enter a Make target"
+
 new-project:
 	mkdir -p projects/$(PROJECT)/src
 	cp templates/asm.template projects/$(PROJECT)/src/$(PROJECT).asm
