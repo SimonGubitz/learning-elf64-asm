@@ -7,6 +7,8 @@ SRC = src/sorting-algorithms.asm
 OBJ = build/sorting-algorithms.o
 BIN = build/sorting-algorithms
 
+.PHONY: all run clean
+
 all: $(BIN)
 
 $(OBJ): $(SRC)

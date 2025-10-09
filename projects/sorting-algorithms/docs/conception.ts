@@ -4,9 +4,11 @@ function selectionSort(arr: number[]) {
     let rcx = 0;
     let rdi = 0;
     for (let rcx = 0; rcx < arr.length; rcx++) {
+
         let rdx: number = rcx;
         const inner_loop = () => {
             for (let rbx = rcx; rbx < arr.length; rbx++) {
+
                 if (arr[rbx] >= arr[rdx]) {         // jge .skip_update_min
                     console.log("skipping update");
                 } else {
@@ -14,6 +16,8 @@ function selectionSort(arr: number[]) {
                     console.log("setting min to: " + rdx);
                 }
             }
+            console.log("\n");
+            console.log("\n");
         };
         inner_loop();
 
@@ -25,6 +29,7 @@ function selectionSort(arr: number[]) {
             rdi += 4;
             // console.log(arr);
         }
+
     }
 
     return arr; // ret

@@ -1,5 +1,8 @@
 # 0x402001 is the address of arr -> `i address arr`
+shell make
 b _selection_sort
 display/d *(int*)(0x402001 + $rbx*4)
 display/d $r8d
+display/d $rdx
+display $eflags
 run
