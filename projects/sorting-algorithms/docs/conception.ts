@@ -7,8 +7,8 @@ function selectionSort(arr: number[]) {
 
         let rdx: number = rcx;
         const inner_loop = () => {
-            for (let rbx = rcx; rbx < arr.length; rbx++) {
 
+            for (let rbx = rcx; rbx < arr.length; rbx++) {
                 if (arr[rbx] >= arr[rdx]) {         // jge .skip_update_min
                     console.log("skipping update");
                 } else {
@@ -16,7 +16,6 @@ function selectionSort(arr: number[]) {
                     console.log("setting min to: " + rdx);
                 }
             }
-            console.log("\n");
             console.log("\n");
         };
         inner_loop();

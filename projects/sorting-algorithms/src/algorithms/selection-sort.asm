@@ -43,14 +43,12 @@ _selection_sort:
 
     mov r8d, dword[arr + rdx*4]
     cmp dword[arr + rbx*4], r8d
-    ; add rdi, 2
     lea rdi, [rdi + 2]  ; add modified the flags
     jl .update_min
     jmp .skip_update_min
     .update_min:
+
     mov rdx, rbx        ; min = j
-
-
 
     push rsi    ; temp storage for rdi access counter
     push rcx
@@ -89,17 +87,23 @@ _selection_sort:
 
 .skip_update_min:
     push rsi
+    push rcx
+    push r8
     push rdx
-    push rax
     push rdi
+    push rax
+    push rbx
 
     mov rsi, skip_msg
     mov rdx, skip_msg_len
     call _write
 
-    pop rdi
+    pop rbx
     pop rax
+    pop rdi
     pop rdx
+    pop r8
+    pop rcx
     pop rsi
 .continue:
 
@@ -108,7 +112,7 @@ _selection_sort:
 .inner_loop_end:
 
 
-    mov r8d, dword[arr + rcx*4]     ; segfault
+    mov r8d, dword[arr + rcx*4]
     cmp r8d, dword[arr + rdx*4]
     lea rdi, [rdi + 2]
     jg .skip_swap                   ; if ( arr[min] < arr[i] )

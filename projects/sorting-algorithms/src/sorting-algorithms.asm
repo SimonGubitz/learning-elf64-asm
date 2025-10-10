@@ -170,6 +170,7 @@ _fill_arr_random:
 
 ; Needs  r8 = Decimal Number to be converted
 ;       rsi = buffer address
+;
 ; Clobbers  rcx,
 ;           r8,
 ;           rdx,
@@ -211,6 +212,7 @@ _itoa:
     mov bl, [rsi+rdx]
     mov [rsi+r8], bl
     mov [rsi+rdx], al
+
     inc r8
     dec rdx
     jmp .rev_loop
@@ -222,6 +224,7 @@ _itoa:
 
 ; Needs rsi = address of the string
 ;       rdx = length of the string
+;
 ; Clobbers  rax,
 ;           rdi
 _write:
