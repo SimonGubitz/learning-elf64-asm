@@ -4,6 +4,6 @@ b _selection_sort
 # update with `i address arr`
 display/d *(int*)(0x402021 + $rbx*4)
 display/d $r8d
-display/d $rdx
+display/d $rbx
 display $eflags
 run

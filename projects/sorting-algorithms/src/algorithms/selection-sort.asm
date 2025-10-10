@@ -52,7 +52,7 @@ _selection_sort:
 
 
 
-    push rsi    ; temp storage for rdi access counter
+        push rsi    ; temp storage for rdi access counter
         push rcx
         push r8
         push rdx
@@ -75,11 +75,11 @@ _selection_sort:
         mov rdx, 1
         call _write
 
-        pop rdi     ; temp storage for rdi access counter
-        pop rdx     ; temp storage for rdi access counter
-        pop r8     ; temp storage for rdi access counter
-        pop rcx     ; temp storage for rdi access counter
-        pop rsi      ; temp storage for r8d
+        pop rdi
+        pop rdx
+        pop r8
+        pop rcx
+        pop rsi
 
         jmp .continue
 
@@ -105,7 +105,7 @@ _selection_sort:
 
 
     mov r8d, dword[arr + rcx*4]
-    cmp r8d, dword[arr + rdx*4]     ;
+    cmp r8d, dword[arr + rdx*4]
     lea rdi, [rdi + 2]
     jg .skip_swap                   ; if ( arr[min] < arr[i] )
     mov esi, dword[arr + rcx*4]
