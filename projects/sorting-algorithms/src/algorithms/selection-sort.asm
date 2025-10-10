@@ -7,7 +7,7 @@ section .data
     skip_msg db "skipping update", 0xa
     skip_msg_len equ $ - skip_msg
 
-    setting_msg db "setting min to:", 0x0
+    setting_msg db "setting min to: ", 0x0
     setting_msg_len equ $ - setting_msg
 
 section .text
@@ -37,74 +37,78 @@ _selection_sort:
     ; keep in mind that we order 4 byte ints -> 32 bit -> e registers
     mov rbx, rcx        ;   j = i
     mov rdx, rcx        ; min = i
-    .inner_loop:
-        cmp rbx, rax
-        je .inner_loop_end
+.inner_loop:
+    cmp rbx, rax
+    je .inner_loop_end
 
-        mov r8d, dword[arr + rdx*4]
-        cmp dword[arr + rbx*4], r8d
-        ; add rdi, 2
-        lea rdi, [rdi + 2]  ; add modified the flags
-        jl .update_min
-        jmp .skip_update_min
-        .update_min:
-        mov rdx, rbx        ; min = j
-
-
-
-        push rsi    ; temp storage for rdi access counter
-        push rcx
-        push r8
-        push rdx
-        push rdi
-
-        ; print out the message
-        mov rsi, setting_msg
-        mov rdx, setting_msg_len
-        call _write
-
-        mov r8, rdx
-        mov rsi, itoa_buff
-        call _itoa
-
-        mov rsi, itoa_buff
-        mov rdx, rdi
-        call _write
-
-        mov rsi, newln
-        mov rdx, 1
-        call _write
-
-        pop rdi
-        pop rdx
-        pop r8
-        pop rcx
-        pop rsi
-
-        jmp .continue
-
-        .skip_update_min:
-            push rsi
-            push rdx
-            push rax
-            push rdi
-
-            mov rsi, skip_msg
-            mov rdx, skip_msg_len
-            call _write
-
-            pop rdi
-            pop rax
-            pop rdx
-            pop rsi
-        .continue:
-
-        inc rbx
-        jmp .inner_loop
-    .inner_loop_end:
+    mov r8d, dword[arr + rdx*4]
+    cmp dword[arr + rbx*4], r8d
+    ; add rdi, 2
+    lea rdi, [rdi + 2]  ; add modified the flags
+    jl .update_min
+    jmp .skip_update_min
+    .update_min:
+    mov rdx, rbx        ; min = j
 
 
-    mov r8d, dword[arr + rcx*4]
+
+    push rsi    ; temp storage for rdi access counter
+    push rcx
+    push r8
+    push rdx
+    push rdi
+    push rax
+    push rbx
+
+    ; print out the message
+    mov rsi, setting_msg
+    mov rdx, setting_msg_len
+    call _write
+
+    mov r8, rdx
+    mov rsi, itoa_buff
+    call _itoa
+
+    mov rsi, itoa_buff
+    mov rdx, rdi
+    call _write
+
+    mov rsi, newln
+    mov rdx, 1
+    call _write
+
+    pop rbx
+    pop rax
+    pop rdi
+    pop rdx
+    pop r8
+    pop rcx
+    pop rsi
+
+    jmp .continue
+
+.skip_update_min:
+    push rsi
+    push rdx
+    push rax
+    push rdi
+
+    mov rsi, skip_msg
+    mov rdx, skip_msg_len
+    call _write
+
+    pop rdi
+    pop rax
+    pop rdx
+    pop rsi
+.continue:
+
+    inc rbx             ; 0 -> 1
+    jmp .inner_loop
+.inner_loop_end:
+
+
+    mov r8d, dword[arr + rcx*4]     ; segfault
     cmp r8d, dword[arr + rdx*4]
     lea rdi, [rdi + 2]
     jg .skip_swap                   ; if ( arr[min] < arr[i] )
@@ -122,7 +126,7 @@ _selection_sort:
     ; xor dword[arr + rcx*4], r8d
     ; xor dword[arr + rdx*4], esi
 
-    .skip_swap:
+.skip_swap:
 
     inc rcx
     jmp .loop

@@ -174,6 +174,8 @@ _fill_arr_random:
 ;           r8,
 ;           rdx,
 ;           rdi = pointer to the digit
+;           rax / al = rev_loop temp swap regs
+;           rbx / bl = rev_loop temp swap regs
 ; Returns in the buffer specified by rsi & rdi = number of bytes written
 _itoa:
     xor rdi, rdi       ; buffer index
