@@ -220,6 +220,8 @@ _itoa:
 
 ; Needs rsi = address of the string
 ;       rdx = length of the string
+; Clobbers  rax,
+;           rdi
 _write:
     mov rax, SYS_WRITE
     mov rdi, STD_OUT

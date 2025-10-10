@@ -50,13 +50,18 @@ _selection_sort:
         .update_min:
         mov rdx, rbx        ; min = j
 
+
+
+    push rsi    ; temp storage for rdi access counter
+        push rcx
+        push r8
+        push rdx
+        push rdi
+
         ; print out the message
         mov rsi, setting_msg
         mov rdx, setting_msg_len
         call _write
-
-        push rsi    ; temp storage for rdi access counter
-        push r8     ; temp storage for r8d
 
         mov r8, rdx
         mov rsi, itoa_buff
@@ -70,15 +75,28 @@ _selection_sort:
         mov rdx, 1
         call _write
 
-        pop r8      ; temp storage for r8d
-        pop rsi     ; temp storage for rdi access counter
+        pop rdi     ; temp storage for rdi access counter
+        pop rdx     ; temp storage for rdi access counter
+        pop r8     ; temp storage for rdi access counter
+        pop rcx     ; temp storage for rdi access counter
+        pop rsi      ; temp storage for r8d
 
         jmp .continue
 
         .skip_update_min:
+            push rsi
+            push rdx
+            push rax
+            push rdi
+
             mov rsi, skip_msg
             mov rdx, skip_msg_len
             call _write
+
+            pop rdi
+            pop rax
+            pop rdx
+            pop rsi
         .continue:
 
         inc rbx
