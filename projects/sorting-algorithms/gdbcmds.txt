@@ -1,9 +1,0 @@
-shell make clean && make
-file ./build/sorting-algorithms
-b _selection_sort
-# update with `i address arr`
-# display/d *(int*)(0x402022 + $rbx*4)
-display/d $r8d
-display/d $rcx
-# display $eflags
-run

@@ -53,16 +53,18 @@ _selection_sort:
     push rsi    ; temp storage for rdi access counter
     push rcx
     push r8
-    push rdx
     push rdi
     push rax
     push rbx
 
+    push rdx
     ; print out the message
     mov rsi, setting_msg
     mov rdx, setting_msg_len
     call _write
 
+    pop rdx
+    push rdx
     mov r8, rdx
     mov rsi, itoa_buff
     call _itoa
@@ -75,10 +77,11 @@ _selection_sort:
     mov rdx, 1
     call _write
 
+    pop rdx
+
     pop rbx
     pop rax
     pop rdi
-    pop rdx
     pop r8
     pop rcx
     pop rsi
@@ -107,20 +110,23 @@ _selection_sort:
     pop rsi
 .continue:
 
-    inc rbx             ; 0 -> 1
+    inc rbx
     jmp .inner_loop
 .inner_loop_end:
 
 
-    mov r8d, dword[arr + rcx*4]
-    cmp r8d, dword[arr + rdx*4]
+.gdb_breakpoint:
+    mov r8d, dword[arr + rcx*4]     ; i
+    cmp r8d, dword[arr + rdx*4]     ; min
+                                    ; i - min < 0 -> ZF = 1
     lea rdi, [rdi + 2]
-    jg .skip_swap                   ; if ( arr[min] < arr[i] )
+    jl .skip_swap                   ; ZF == 0 && SF == OF
+                                    ; if ( arr[min] < arr[i] )
     mov esi, dword[arr + rcx*4]
     mov r8d, dword[arr + rdx*4]
     mov dword[arr + rcx*4], r8d
     mov dword[arr + rdx*4], esi
-    add rdi, 4
+    lea rdi, [rdi + 4]              ; out of uniformity
 
     ; print out the message
 

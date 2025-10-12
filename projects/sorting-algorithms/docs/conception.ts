@@ -16,7 +16,6 @@ function selectionSort(arr: number[]) {
                     console.log("setting min to: " + rdx);
                 }
             }
-            console.log("\n");
         };
         inner_loop();
 

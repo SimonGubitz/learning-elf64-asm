@@ -9,7 +9,7 @@ This project is inspired by a similar project I've recently done in Pascal: [Sor
 - [ ] Insertion Sort
 - [ ] Mergesort
 - [ ] Quicksort
-- [ ] Selection Sort
+- [x] Selection Sort
 - [ ] Radix Sort
 
 ## Technique
