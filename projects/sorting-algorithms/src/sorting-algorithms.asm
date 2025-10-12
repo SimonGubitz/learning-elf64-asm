@@ -1,5 +1,5 @@
 ; sorting-algorithms.asm
-%include "src/algorithms/selection-sort-debug.asm"
+%include "src/algorithms/selection-sort.asm"
 %include "src/time/get-ticks.asm"
 
 SYS_WRITE   equ 0x1
