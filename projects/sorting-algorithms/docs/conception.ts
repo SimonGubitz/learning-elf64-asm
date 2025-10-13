@@ -35,20 +35,22 @@ function selectionSort(arr: number[]) {
 
 function mergesort(arr: numbers): numbers {
 
-    if (arr.length <= 1) {
+    console.log('in mergesort with: ', arr);
+
+    if (arr.length < 1) {
         return arr;
     }
 
     const concat: (l_arr: numbers, r_arr: numbers) => numbers = (l_arr: numbers, r_arr: numbers) => {
 
         let res: numbers = [];
-        // res.length = l_arr.length + r_arr.length;
+
+        console.log('concat: ' + l_arr + " with: " + r_arr);
 
         let ri = 0, li = 0;
         for (let i = 0; i < res.length; i++) {
             // do something smart here
             if (arr[ri] > arr[li]) {
-                // 
                 res.push(arr[ri]);
                 ri++;
             } else {
@@ -64,10 +66,12 @@ function mergesort(arr: numbers): numbers {
     let l_arr: numbers = [];
     let r_arr: numbers = [];
     let middle: number = arr.length / 2;
-    for (let i = arr.length; i > 0; i--) {
+    for (let i = arr.length - 1; i > 0; i--) {
         if (i > middle) {
+            console.log('pushing into left: ', arr[i]);
             l_arr.push(arr[i]);
         } else {
+            console.log('pushing into right: ', arr[i]);
             r_arr.push(arr[i]);
         }
     }

@@ -6,10 +6,10 @@
 
 > [selection-sort.asm:39](../src/algorithms/selection-sort.asm)
 
-```nasm
-    - cmp dword[arr + rbx*4], dword[arr + rdx*4]
-    + mov r8d, dword[arr + rdx*4]
-    + cmp dword[arr + rbx*4], r8d
+```diff
+-     cmp dword[arr + rbx*4], dword[arr + rdx*4]
++     mov r8d, dword[arr + rdx*4]
++     cmp dword[arr + rbx*4], r8d
 ```
 
 ## 2. CMP with ADD right behind it
@@ -18,10 +18,10 @@
 
 > [selection-sort.asm:40](../src/algorithms/selection-sort.asm)
 
-```nasm
+```diff
     cmp dword[arr + rbx*4], r8d
-    - add rdi, 2
-    + lea rdi, [rdi + 2]
+-   add rdi, 2
++   lea rdi, [rdi + 2]
 ```
 
 ### Why it needed to be changed
