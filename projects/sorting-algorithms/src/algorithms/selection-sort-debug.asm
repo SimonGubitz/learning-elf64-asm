@@ -1,4 +1,4 @@
-; selection-sort.asm
+; selection-sort-debug.asm
 
 section .bss
 

@@ -9,7 +9,7 @@ SYS_EXIT    equ 0x3c
 STD_OUT     equ 0x1
 STD_IN      equ 0x0
 
-arr_len equ 15000
+arr_len equ 500000
 
 section .bss
     itoa_buff resb 32
