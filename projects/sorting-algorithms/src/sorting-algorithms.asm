@@ -14,6 +14,7 @@ arr_len equ 15000
 section .bss
     itoa_buff resb 32
     time_buff resb 32
+    elements_buff resb 32
     array_access_buff resb 32
 
 section .data
@@ -22,8 +23,11 @@ section .data
     ; arr times arr_len dd 832, 32, 499, 427, 3, 6, 9, 1, 5, 2
     ; arr times arr_len dq 0      ; 100 Element @ 8 byte (long long) array -> 64 bit
 
-    elements db "- For 15000 Elements:", 0xa
+    elements db "- For ", 0x0
     elements_len equ $ - elements
+
+    elements_suffix db " Elements:", 0xa
+    elements_suffix_len equ $ - elements_suffix
 
     time db "- Time: ", 0x0
     time_len equ $ - time
@@ -47,6 +51,7 @@ global _start
 ;               r12 = access counter
 ;               r13 = time_buff length
 ;               r14 = arr_access_buff length
+;               r15 = elements_buff length
 _start:
 
     ; ;call _fill_arr_random
@@ -70,14 +75,14 @@ _start:
 
     mov rax, arr_len
     call _selection_sort
-    mov r12, rdi        ; save the array access counter
+    mov r12, rdi
 
     ; capture end in r10
     call _getTickCount64
     mov r10, rax
 
-    ; call _debug_display_arr
 
+    ; Display the Benchmark Results
     mov rdi, r10
     sub rdi, r9         ; subtract the end from start to get runtime
     mov r11, rdi
@@ -92,8 +97,21 @@ _start:
     call _itoa
     mov r14, rdi
 
+    mov r8, arr_len
+    mov rsi, elements_buff
+    call _itoa
+    mov r15, rdi
+
     mov rsi, elements
     mov rdx, elements_len
+    call _write
+
+    mov rsi, elements_buff
+    mov rdx, r15
+    call _write
+
+    mov rsi, elements_suffix
+    mov rdx, elements_suffix_len
     call _write
 
     mov rsi, time
