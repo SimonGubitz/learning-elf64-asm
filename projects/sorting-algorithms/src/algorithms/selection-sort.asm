@@ -4,11 +4,6 @@ section .bss
 
 
 section .data
-    skip_msg db "skipping update", 0xa
-    skip_msg_len equ $ - skip_msg
-
-    setting_msg db "setting min to: ", 0x0
-    setting_msg_len equ $ - setting_msg
 
 section .text
 global _selection_sort

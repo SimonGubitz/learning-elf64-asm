@@ -1,5 +1,4 @@
 
-
 function selectionSort(arr: number[]) {
     let rcx = 0;
     let rdi = 0;

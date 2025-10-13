@@ -9,7 +9,7 @@ SYS_EXIT    equ 0x3c
 STD_OUT     equ 0x1
 STD_IN      equ 0x0
 
-arr_len equ 10
+arr_len equ 15000
 
 section .bss
     itoa_buff resb 32
@@ -18,11 +18,11 @@ section .bss
 
 section .data
     newln db 0xa
-    ; arr times arr_len dd 0     ; 100 Element @ 4 Byte (int) array -> 32 bit
-    arr times arr_len dd 832, 32, 499, 427, 3, 6, 9, 1, 5, 2
+    arr times arr_len dd 0     ; 100 Element @ 4 Byte (int) array -> 32 bit
+    ; arr times arr_len dd 832, 32, 499, 427, 3, 6, 9, 1, 5, 2
     ; arr times arr_len dq 0      ; 100 Element @ 8 byte (long long) array -> 64 bit
 
-    elements db "- For 10000 Elements: ", 0xa
+    elements db "- For 15000 Elements:", 0xa
     elements_len equ $ - elements
 
     time db "- Time: ", 0x0
@@ -41,22 +41,25 @@ section .data
 section .text
 global _start
 
+; Register use: r9  = start time
+;               r10 = end time
+;               r11 = total time
+;               r12 = access counter
+;               r13 = time_buff length
+;               r14 = arr_access_buff length
 _start:
 
-    ;call _fill_arr_random
-    call _debug_display_arr
+    ; ;call _fill_arr_random
+    ; call _debug_display_arr
 
-    mov rsi, divider
-    mov rdx, divider_len
-    call _write
 
-    mov rax, arr_len
-    call _selection_sort
-    call _debug_display_arr
+    ; mov rax, arr_len
+    ; call _selection_sort
+    ; call _debug_display_arr
 
-    jmp _exit
+    ; jmp _exit
 
-    ; temporary debug blockage
+    ; ; temporary debug blockage
 
     mov rsi, arr
     call _fill_arr_random
@@ -67,21 +70,27 @@ _start:
 
     mov rax, arr_len
     call _selection_sort
+    mov r12, rdi        ; save the array access counter
 
-    ; capture end in r8
+    ; capture end in r10
     call _getTickCount64
     mov r10, rax
 
+    ; call _debug_display_arr
+
     mov rdi, r10
     sub rdi, r9         ; subtract the end from start to get runtime
+    mov r11, rdi
 
     mov rsi, time_buff
     mov r8, rdi
     call _itoa
+    mov r13, rdi
 
-    mov r8, rdi                 ; write the array accesses
+    mov r8, r12                 ; write the array accesses
     mov rsi, array_access_buff  ; into array_access_buff
     call _itoa
+    mov r14, rdi
 
     mov rsi, elements
     mov rdx, elements_len
@@ -92,7 +101,7 @@ _start:
     call _write
 
     mov rsi, time_buff
-    mov rdx, rdi
+    mov rdx, r13
     call _write
 
     mov rsi, time_suffix
@@ -108,7 +117,7 @@ _start:
     call _write
 
     mov rsi, array_access_buff
-    mov rdx, rdi
+    mov rdx, r14
     call _write
 
     mov rsi, newln
@@ -122,15 +131,15 @@ _start:
 
 
 _debug_display_arr:
-    push r12
-    xor r12, r12
+    push r13
+    xor r13, r13
 .loop_display:
 
-    cmp r12, arr_len
+    cmp r13, arr_len
     jge .loop_display_end
 
     ; itoa
-    mov  r8d, dword[arr + r12*4]
+    mov  r8d, dword[arr + r13*4]
     mov rsi, itoa_buff
     call _itoa
 
@@ -142,10 +151,10 @@ _debug_display_arr:
     mov rdx, 1
     call _write
 
-    inc r12
+    inc r13
     jmp .loop_display
 .loop_display_end:
-    pop r12
+    pop r13
     ret
 
 
@@ -159,7 +168,10 @@ _fill_arr_random:
     cmp rcx, arr_len
     jz .done
 
+.rdrand_loop:
     rdrand edx
+    jnc .rdrand_loop
+
     mov [arr + rcx*4], edx
 
     inc rcx
@@ -217,6 +229,7 @@ _itoa:
     dec rdx
     jmp .rev_loop
 .zero_done:
+    mov rdi, 0
     mov byte[rsi], '0'
     ret
 .done_reverse:
