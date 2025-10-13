@@ -6,7 +6,7 @@
 
 > [selection-sort.asm:39](../src/algorithms/selection-sort.asm)
 
-```diff
+```nasm
     - cmp dword[arr + rbx*4], dword[arr + rdx*4]
     + mov r8d, dword[arr + rdx*4]
     + cmp dword[arr + rbx*4], r8d
