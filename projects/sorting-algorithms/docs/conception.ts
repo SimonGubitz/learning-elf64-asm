@@ -35,51 +35,54 @@ function selectionSort(arr: number[]) {
 
 function mergesort(arr: numbers): numbers {
 
-    console.log('in mergesort with: ', arr);
 
-    if (arr.length < 1) {
+    if (arr.length <= 1) {
         return arr;
     }
 
-    const concat: (l_arr: numbers, r_arr: numbers) => numbers = (l_arr: numbers, r_arr: numbers) => {
+    const merge: (l_arr: numbers, r_arr: numbers) => numbers = (l_arr: numbers, r_arr: numbers) => {
 
         let res: numbers = [];
 
-        console.log('concat: ' + l_arr + " with: " + r_arr);
-
         let ri = 0, li = 0;
-        for (let i = 0; i < res.length; i++) {
-            // do something smart here
-            if (arr[ri] > arr[li]) {
-                res.push(arr[ri]);
-                ri++;
-            } else {
-                res.push(arr[li]);
+        while (ri < r_arr.length && li < l_arr.length) {
+            if (l_arr[li] <= r_arr[ri]) {
+                res.push(l_arr[li]);
                 li++;
+            } else {
+                res.push(r_arr[ri]);
+                ri++;
             }
         }
+        for (let i = li; i < l_arr.length; i++) {
+            res.push(arr[li]);
+            li++;
+        }
 
-        return []; // temp
+        for (let i = ri; i < r_arr.length; i++) {
+            res.push(r_arr[ri]);
+            ri++;
+        }
+
+
+        return res; // temp
     };
 
     // split in two
     let l_arr: numbers = [];
     let r_arr: numbers = [];
-    let middle: number = arr.length / 2;
-    for (let i = arr.length - 1; i > 0; i--) {
-        if (i > middle) {
-            console.log('pushing into left: ', arr[i]);
-            l_arr.push(arr[i]);
-        } else {
-            console.log('pushing into right: ', arr[i]);
-            r_arr.push(arr[i]);
-        }
+    let middle: number = Math.floor(arr.length / 2);
+    for (let i = 0; i < middle; i++) {
+        l_arr.push(arr[i]);
+    }
+    for (let i = middle; i < arr.length; i++) {
+        r_arr.push(arr[i]);
     }
 
     l_arr = mergesort(l_arr);
     r_arr = mergesort(r_arr);
 
-    return concat(l_arr, r_arr);
+    return merge(l_arr, r_arr);
 }
 
 
