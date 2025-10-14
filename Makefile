@@ -22,7 +22,7 @@ setup-mac-debug:
 	mkdir -p debug
 
 	curl -L https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/alpine-standard-3.20.0-x86_64.iso \
-	-o ./debug/x86_64-alpine.iso
+		 -o ./debug/x86_64-alpine.iso
 
 	qemu-img create -f qcow2 ./debug/x86_64-alpine.qcow2 2G
 
@@ -63,6 +63,9 @@ endif
 endif
 endif
 
+clean-debug:
+	rm -rf debug
+
 run:
 ifeq ($(strip $(UNAME_S)),Linux)
 ifndef ($(PROJECT))
@@ -75,7 +78,7 @@ else # on Mac or Windows
 	docker build -t $(DOCKER_NAME) --platform linux/amd64 .
 	docker run --rm -it \
 		--platform linux/amd64 \
-		-v $$(pwd)/projects:/app/projects \
-		-w /app/projects/$(PROJECT) \
+		-v $$(pwd):/app/ \
+		-w /app/$(PROJECT) \
 		$(DOCKER_NAME)
 endif

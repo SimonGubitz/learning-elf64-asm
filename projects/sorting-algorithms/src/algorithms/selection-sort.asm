@@ -1,17 +1,12 @@
 ; selection-sort.asm
 
-section .bss
-
-
-section .data
-
 section .text
 global _selection_sort
 
-; Needs arr = the .data array
+; Needs r9 = address of the array
 ;       rax = length of the array
 ;
-; Clobbers  rcx as the arr counter,
+; Clobbers  rcx as the r9 counter,
 ;           rdx as the min
 ;           rbx as the second counter
 ;           esi as the temp/swap value
@@ -36,8 +31,8 @@ _selection_sort:
     cmp rbx, rax
     je .inner_loop_end
 
-    mov r8d, dword[arr + rdx*4]
-    cmp dword[arr + rbx*4], r8d
+    mov r8d, dword[r9 + rdx*4]
+    cmp dword[r9 + rbx*4], r8d
     lea rdi, [rdi + 2]  ; add modified the flags
     jl .update_min
     jmp .skip_update_min
@@ -56,25 +51,25 @@ _selection_sort:
 
 
 .gdb_breakpoint:
-    mov r8d, dword[arr + rcx*4]     ; i
-    cmp r8d, dword[arr + rdx*4]     ; min
+    mov r8d, dword[r9 + rcx*4]     ; i
+    cmp r8d, dword[r9 + rdx*4]     ; min
                                     ; i - min < 0 -> ZF = 1
     lea rdi, [rdi + 2]
     jl .skip_swap                   ; ZF == 0 && SF == OF
-                                    ; if ( arr[min] < arr[i] )
-    mov esi, dword[arr + rcx*4]
-    mov r8d, dword[arr + rdx*4]
-    mov dword[arr + rcx*4], r8d
-    mov dword[arr + rdx*4], esi
+                                    ; if ( r9[min] < r9[i] )
+    mov esi, dword[r9 + rcx*4]
+    mov r8d, dword[r9 + rdx*4]
+    mov dword[r9 + rcx*4], r8d
+    mov dword[r9 + rdx*4], esi
     lea rdi, [rdi + 4]              ; out of uniformity
 
     ; print out the message
 
     ; xor swap
-    ; mov esi, dword[arr + rcx*4]
-    ; xor r8d, dword[arr + rdx*4]
-    ; xor dword[arr + rcx*4], r8d
-    ; xor dword[arr + rdx*4], esi
+    ; mov esi, dword[r9 + rcx*4]
+    ; xor r8d, dword[r9 + rdx*4]
+    ; xor dword[r9 + rcx*4], r8d
+    ; xor dword[r9 + rdx*4], esi
 
 .skip_swap:
 

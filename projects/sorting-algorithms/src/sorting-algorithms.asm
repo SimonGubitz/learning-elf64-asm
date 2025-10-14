@@ -1,15 +1,14 @@
 ; sorting-algorithms.asm
-%include "src/algorithms/selection-sort.asm"
-%include "src/time/get-ticks.asm"
+extern _selection_sort
+extern _getTickCount64
+extern _write
+extern _write_newln
+extern _print_arr
+extern _itoa
 
-SYS_WRITE   equ 0x1
-SYS_READ    equ 0x0
-SYS_EXIT    equ 0x3c
+SYS_EXIT equ 0x3c
 
-STD_OUT     equ 0x1
-STD_IN      equ 0x0
-
-arr_len equ 500000
+arr_len equ 500
 
 section .bss
     itoa_buff resb 32
@@ -18,7 +17,6 @@ section .bss
     array_access_buff resb 32
 
 section .data
-    newln db 0xa
     arr times arr_len dd 0     ; 100 Element @ 4 Byte (int) array -> 32 bit
     ; arr times arr_len dd 832, 32, 499, 427, 3, 6, 9, 1, 5, 2
     ; arr times arr_len dq 0      ; 100 Element @ 8 byte (long long) array -> 64 bit
@@ -60,7 +58,7 @@ _start:
 
     ; mov rax, arr_len
     ; call _selection_sort
-    ; call _debug_display_arr
+    ; call _print_arr
 
     ; jmp _exit
 
@@ -73,9 +71,13 @@ _start:
     call _getTickCount64
     mov r9, rax
 
+    push r9
+    mov r9, arr         ; temp disassociation of r9
     mov rax, arr_len
     call _selection_sort
     mov r12, rdi
+
+    pop r9              ; restore r9
 
     ; capture end in r10
     call _getTickCount64
@@ -125,10 +127,7 @@ _start:
     mov rsi, time_suffix
     mov rdx, time_suffix_len
     call _write
-
-    mov rsi, newln
-    mov rdx, 1
-    call _write
+    call _write_newln
 
     mov rsi, total_arr_access
     mov rdx, total_arr_access_len
@@ -138,42 +137,12 @@ _start:
     mov rdx, r14
     call _write
 
-    mov rsi, newln
-    mov rdx, 1
-    call _write
-    mov rsi, newln
-    mov rdx, 1
-    call _write
+    call _write_newln
+    call _write_newln
 
     jmp _exit
 
 
-_debug_display_arr:
-    push r13
-    xor r13, r13
-.loop_display:
-
-    cmp r13, arr_len
-    jge .loop_display_end
-
-    ; itoa
-    mov  r8d, dword[arr + r13*4]
-    mov rsi, itoa_buff
-    call _itoa
-
-    mov rsi, itoa_buff; rsi = address of the string
-    mov rdx, rdi ; rdx = length of the string
-    call _write
-
-    mov rsi, newln
-    mov rdx, 1
-    call _write
-
-    inc r13
-    jmp .loop_display
-.loop_display_end:
-    pop r13
-    ret
 
 
 ; Clobbers  rcx as the arr counter,
@@ -197,72 +166,6 @@ _fill_arr_random:
 .done:
     ret
 
-
-; Needs  r8 = Decimal Number to be converted
-;       rsi = buffer address
-;
-; Clobbers  rcx,
-;           r8,
-;           rdx,
-;           rdi = pointer to the digit
-;           rax / al = rev_loop temp swap regs
-;           rbx / bl = rev_loop temp swap regs
-; Returns in the buffer specified by rsi & rdi = number of bytes written
-_itoa:
-    xor rdi, rdi       ; buffer index
-    mov rcx, 10        ; divisor
-
-    ; If r8 = 0 then return 0
-    cmp r8, 0
-    jz .zero_done
-
-.next_digit:
-    test r8, r8
-    je .reverse_buff   ; jump to reverse after loop
-
-    mov rax, r8
-    xor rdx, rdx
-    idiv rcx
-
-    add dl, '0'
-    mov byte[rsi+rdi], dl
-
-    mov r8, rax
-    inc rdi
-    jmp .next_digit
-
-.reverse_buff:
-    lea rdx, [rdi - 1] ; last valid index
-    xor r8, r8         ; r8 = start index
-.rev_loop:
-    cmp r8, rdx
-    jge .done_reverse
-
-    mov al, [rsi+r8]
-    mov bl, [rsi+rdx]
-    mov [rsi+r8], bl
-    mov [rsi+rdx], al
-
-    inc r8
-    dec rdx
-    jmp .rev_loop
-.zero_done:
-    mov rdi, 0
-    mov byte[rsi], '0'
-    ret
-.done_reverse:
-    ret                ; rdi still contains the number of bytes written
-
-; Needs rsi = address of the string
-;       rdx = length of the string
-;
-; Clobbers  rax,
-;           rdi
-_write:
-    mov rax, SYS_WRITE
-    mov rdi, STD_OUT
-    syscall
-    ret
 
 _exit:
     mov rax, SYS_EXIT

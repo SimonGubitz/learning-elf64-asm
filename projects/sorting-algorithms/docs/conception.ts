@@ -1,5 +1,3 @@
-type numbers = number[];
-
 function selectionSort(arr: number[]) {
     let rcx = 0;
     let rdi = 0;
@@ -33,16 +31,25 @@ function selectionSort(arr: number[]) {
     return arr; // ret
 }
 
-function mergesort(arr: numbers): numbers {
-
+function mergesort(arr: number[]): number[] {
 
     if (arr.length <= 1) {
         return arr;
     }
 
-    const merge: (l_arr: numbers, r_arr: numbers) => numbers = (l_arr: numbers, r_arr: numbers) => {
+    // split in two
+    let l_arr: number[] = [];
+    let r_arr: number[] = [];
+    let middle: number = Math.floor(arr.length / 2);
+    for (let i = 0; i < middle; i++) {
+        l_arr.push(arr[i]);
+    }
+    for (let i = middle; i < arr.length; i++) {
+        r_arr.push(arr[i]);
+    }
 
-        let res: numbers = [];
+    const merge: (l_arr: number[], r_arr: number[]) => number[] = (l_arr: number[], r_arr: number[]) => {
+        let res: number[] = [];
 
         let ri = 0, li = 0;
         while (ri < r_arr.length && li < l_arr.length) {
@@ -67,17 +74,6 @@ function mergesort(arr: numbers): numbers {
 
         return res; // temp
     };
-
-    // split in two
-    let l_arr: numbers = [];
-    let r_arr: numbers = [];
-    let middle: number = Math.floor(arr.length / 2);
-    for (let i = 0; i < middle; i++) {
-        l_arr.push(arr[i]);
-    }
-    for (let i = middle; i < arr.length; i++) {
-        r_arr.push(arr[i]);
-    }
 
     l_arr = mergesort(l_arr);
     r_arr = mergesort(r_arr);

@@ -31,3 +31,13 @@ Based on the state of the `eflags` the `jl` or `jg` either jumps or ignores it.
 Thus normally it's written direcly beneath each other, but since I wanted to count the array access in a benchmark style, I wanted to add 2 to the access counter, which I used `rdi` for.
 Yet I completely forgot, that a `add rdi, 2` instruction changes the flags into an unusable state for conditional jumping.
 Thus I had to use `lea rdi, [rdi + 2]` which essentially does the same thing, but without affecting any flags.
+
+## 3. Keep `rsp` aligned with 16 byte
+
+Whilst creating the `shared` folder, and testing the integrations, the `_print_arr` [in here](../../shared/print_arr.asm), became unaligned and thus jumped to nonsensical addresses.
+
+> [print_arr.asm](../../shared/print_arr.asm)
+
+```diff
+
+```
