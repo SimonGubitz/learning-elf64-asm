@@ -11,7 +11,7 @@ global _print_arr
 ;       rdx = length of the string
 ; Clobbers  rcx, r8, rdx, rdi, rax, rbx = all from _itoa
 _print_arr:
-    push r13        ; rsp % 16 =
+    push r13
     xor r13, r13
 .loop_display:
 

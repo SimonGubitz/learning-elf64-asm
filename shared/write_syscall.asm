@@ -23,3 +23,4 @@ _write_newln:
     mov rsi, newln
     mov rdx, 1
     call _write
+    ret
