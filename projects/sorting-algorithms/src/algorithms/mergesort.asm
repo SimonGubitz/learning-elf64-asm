@@ -3,8 +3,8 @@
 SYS_MMAP    equ  9
 SYS_MUNMAP  equ 11
 
-MAP_SHARED          equ 0x1
-MAP_PRIVATE         equ 0x2
+MAP_SHARED          equ 0x01
+MAP_PRIVATE         equ 0x02
 MAP_TYPE            equ 0x0f            ; /* Mask for type of mapping */
 MAP_FIXED           equ 0x10            ; /* Interpret addr exactly */
 MAP_ANONYMOUS       equ 0x20            ; /* don't use a file */
@@ -36,17 +36,24 @@ global _mergesort
 ; Clobbers  r12 = length / size of everything
 ;           r8  = left arr start
 ;           r9  = right arr start
+;           rcx = counter / index of the array
 _mergesort:
-    ; get the length in r12
+    xor rcx, rcx
+
+.recursion:
+    ; return with the length and the address of the sorted arr
+    ; in this case return length will always be one
+    cmp r12, 1
+    mov rax, addr
+    mov rdi, len
+    je .recursion_finished
 
 
-    ; push r12
-
-
+    ; reserve more memory (left & right together equals the current length)
     ; https://linux.die.net/man/2/mmap
     mov rax, SYS_MMAP
-    mov rdi, 0              ; address
-    lea rsi, r12            ; length
+    mov rdi, addr           ; address
+    lea rsi, len            ; length
     mov rdx, PROT_WRITE     ; prot
     mov r10, MAP_PRIVATE
     or  r10, MAP_ANONYMOUS  ; flags
@@ -54,20 +61,50 @@ _mergesort:
     mov r9, 0               ; offset
     syscall
 
-    ; pop r12
+    push addr
+    push len
 
-    ; xor
 .split_arrs:
+    mov rcx, 2
+    imul addr
+    push len
+    idiv len            ; truncated -> floor -> right >= left
+    mov middle, len
+    pop len
+    mov middle, len
+    add len, middle
 
-    ; find the middle
-    mov rcx, 4
-    imul
+    xor rcx
+.split_arr_loop:
+    cmp rcx, len
+    je .split_arr_finished
+.left_split:
+.right_split:
+.skip_split:
+
+
+    inc rcx
+    jmp .split_arr_loop
 
 
 .merge:
-
+    pop addr, rdi
+.merge_iteration:
+    ; Release unused memory again
+    ; https://linux.die.net/man/2/munmap
+    mov rax,
+    mov rdi,                ; address
+    lea rsi,                ; length
+    mov rdx,                ; prot
+    mov r10,
+    or  r10,                ; flags
+    mov r8,                 ; fd
+    mov r9,                 ; offset
+    syscall
 
 .iteration_finished:
-    
-.all_finished:
-    mov rax, SYS_MUNMAP
+    ; TODO
+.recursion_finished:
+    ; ? pop addr
+    ; ? pop len
+    ret
