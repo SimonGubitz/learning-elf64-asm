@@ -1,4 +1,4 @@
-const stack: number[] = [];
+// const stack: number[] = [];
 
 function selectionSort(arr: number[]) {
     let rcx = 0;
