@@ -1,0 +1,6 @@
+Int32Array(5) [ 5, 4, 3, 2, 1 ]
+Increase buffer size from 20 to 40.
+
+in mergesort with addr:  0  and rdx:  5
+Int32Array(5) [ 5, 4, 3, 2, 1 ]
+left:  3
