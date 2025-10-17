@@ -48,7 +48,12 @@ function mergesort(arr: number[]): number[] {
         r_arr.push(arr[i]);
     }
 
+    l_arr = mergesort(l_arr);
+    r_arr = mergesort(r_arr);
+
+
     const merge: (l_arr: number[], r_arr: number[]) => number[] = (l_arr: number[], r_arr: number[]) => {
+
         let res: number[] = [];
 
         let ri = 0, li = 0;
@@ -62,7 +67,7 @@ function mergesort(arr: number[]): number[] {
             }
         }
         for (let i = li; i < l_arr.length; i++) {
-            res.push(arr[li]);
+            res.push(l_arr[li]);
             li++;
         }
 
@@ -71,12 +76,8 @@ function mergesort(arr: number[]): number[] {
             ri++;
         }
 
-
         return res; // temp
     };
-
-    l_arr = mergesort(l_arr);
-    r_arr = mergesort(r_arr);
 
     return merge(l_arr, r_arr);
 }
