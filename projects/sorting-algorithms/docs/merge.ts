@@ -1,3 +1,9 @@
+/**
+ * Use Better Comments in VS-Code to visualize the comments better and differentiate between normal comments //
+ * and direct asm translations // *
+ * or other distinct styles
+ */
+
 type memory_address = number;
 
 /**
@@ -115,7 +121,7 @@ const munmap: () => number = () => {
 
 // debug simple 5 to 1
 const fillArr = () => {
-    for (let i = rdi; i > 0; i--) {
+    for (let i = rdi; i >= 0; i--) {
         arr[rdi - i] = i;
     }
 }
@@ -140,43 +146,39 @@ function mergesort_asm() {
         console.log('\nin mergesort with addr:', rsi, 'and end index:', rdi);
         console.log(arr.subarray(rsi, rdi));
 
-        rbx = rdi;      // mov rbx, rdi
-        rbx -= rsi;     // sub rbx, rsi
+        rbx = rdi;      // * mov rbx, rdi
+        rbx -= rsi;     // * sub rbx, rsi
         console.log(`rbx: ${rbx}`);
-        if (rbx <= 1) {         // cmp rbx 1, jle .return jmp, .skip
+        if (rbx <= 1) {         // * cmp rbx 1, jle .return jmp, .skip
             console.log('\nreturning, due to rbx being: ' + rbx + '\n');
-            //.return:
+            // * .return:
 
 
 
 
-            return;             // ret
+            return;             // * ret
         }
-        // .skip:
+        // * .skip:
 
-        // push the start and length
+        // push the start, end and length
         stack.push(rsi);        // push start index
         console.log(`pushed rsi ${rsi}`);
         stack.push(rdi);        // push end index
         console.log(`pushed rdi ${rdi}`);
 
-
-        length = 
-
-        stack.push();
-        console.log(`pushed `);
-
-        // TODO increase the recursion depth here
-        // to have the correct start and length in the right side recursion
+        rdx = rdi;              // * mov rdx, rdi
+        rdx -= rsi;             // * sub rdx, rsi
+        stack.push(rdx);        // push length
+        console.log(`pushed rdx ${rdx}`);
 
 
         // LEFT
 
-        rax = rdi;
-        rcx = 2;
-        rdi = rax % rcx;
-        rax = Math.floor(rax / rcx);    // idiv rcx
-        rdi += rax;                     // add rdi, rax
+        rax = rdi;                      // ! this still uses end instead of length -> thus only working in 0-index arrays not addresses
+        rcx = 2;                        // divisor = 2
+        rdx = rax % rcx;                // simulate clobering rdx register in idiv operation
+        rax = Math.floor(rax / rcx);    // * idiv rcx
+        rdx += rax;                     // * add rdi, rax
 
         console.log('in left, middle: ', rdi);  // middle -> last element of left
         _mergesort();
@@ -184,16 +186,15 @@ function mergesort_asm() {
 
         // RIGHT
 
-        rsi = stack.pop();                  // this pops the start index of the right side
-        console.log(`popped rsi: ${rsi}`);  // intentionally not inverted
+        rdi = stack.pop();                  // length -> pop the length of the previous array -> end index
+        rdi -= 1;                           // zero indexed
+        console.log(`popped rdi: ${rdi}`);
 
-        r8 = stack.pop();
+        rsi = stack.pop();                  // end -> this pops the end index of the left side
+        console.log(`popped rsi: ${rsi}`);
+
+        r8 = stack.pop();                   // start -> unneccesary for this
         console.log(`popped r8: ${r8}`);
-
-
-        // get the length of 2 iteration ago here
-
-
 
         console.log('in right, middle: ', rdi);
         _mergesort();
@@ -220,8 +221,8 @@ function mergesort_asm() {
     };
 
     // ? here or above merge call
-    rdi = stack.pop();      // pop rdi
-    rsi = stack.pop();      // pop rsi
+    rdi = stack.pop();      // * pop rdi
+    rsi = stack.pop();      // * pop rsi
     memcpy();
 
 
@@ -238,8 +239,8 @@ function mergesort_asm() {
 
 // call it with the full array
 rsi = 0;
-rdi = 5;
+rdi = 4;
 fillArr();
 console.log(arr);
 const merge_res = mergesort_asm();
-console.log(arr.subarray(0, 5))
+console.log(arr.subarray(0, 4))
