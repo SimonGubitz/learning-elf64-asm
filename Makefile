@@ -76,9 +76,17 @@ else
 endif
 else # on Mac or Windows
 	docker build -t $(DOCKER_NAME) --platform linux/amd64 .
-	docker run --rm -it \
-		--platform linux/amd64 \
-		-v $$(pwd):/app/ \
-		-w /app/$(PROJECT) \
-		$(DOCKER_NAME)
+	if [ -d "projects/$(PROJECT)" ]; then \
+		docker run --rm -it \
+			--platform linux/amd64 \
+			-v $$(pwd):/app/ \
+			-w /app/projects/$(PROJECT) \
+			$(DOCKER_NAME) \
+	else \
+		docker run --rm -it \
+			--platform linux/amd64 \
+			-v $$(pwd):/app/ \
+			-w /app \
+			$(DOCKER_NAME) \
+    fi
 endif

@@ -103,7 +103,10 @@ const mmap = (options: {
 };
 const munmap: () => number = () => {
     // rdx was poped before
+    const current_bytes = arr_buff.byteLength;
     arr_buff.resize( rdx * 4 );
+    console.log(`Increase buffer size from ${current_bytes}b to ${arr_buff.byteLength}b.`)
+    console.log(`Increase buffer size from ${current_bytes / 4} elements to ${arr_buff.byteLength / 4} elements.\n`)
     return rdx;
 };
 
@@ -114,7 +117,7 @@ const fillArr = () => {
     }
 }
 
-function AsmMergesort() {
+function mergesort_asm() {
 
     const init: () => void = () => {
         // reserve more space
@@ -125,7 +128,7 @@ function AsmMergesort() {
     init();
 
     /**
-     * the main sorting function, seperated due to idiomatics
+     * The main sorting function, seperated due to idiomatics
      * Assembly idiomatic mergesort
      * @param rsi in this case the index in the array, in assembly the real address
      * @param rdx the elements in the array, in assembly the 1/4 offset in the memory due to 4 byte sized int elements
@@ -146,8 +149,11 @@ function AsmMergesort() {
         }
         // .skip:
 
+        // push the start and length
         stack.push(rsi);        // push rsi
         stack.push(rdx);        // push rdx
+        // TODO increase the recursion depth here
+        // to have the correct start and length in the right side recursion
 
 
         // stack.push(rax);
@@ -168,9 +174,9 @@ function AsmMergesort() {
 
 
         // right
-        rsi = stack.pop();                  // pop the middle
+        rsi = stack.pop();
         rdx = stack.pop();                  // pop the middle
-        rsi = rdx;                          // 
+        rsi = rdx;                          //
         stack.push(rdx);    // the length of the original array
         console.log('right middle: ', rdx);
         _mergesort();
@@ -187,23 +193,28 @@ function AsmMergesort() {
 
     _mergesort();
 
-
+    /**
+     * copy the full buffer back into the array
+     * @param rsi start of the buffer
+     * @param rdx length of the buffer and the array
+     */
     const memcpy: () => void = () => {
 
     };
 
+    // ? here or above merge call
+    rdx = stack.pop();      // pop rdx
+    rsi = stack.pop();      // pop rsi
     memcpy();
 
 
-    // ? here or above merge call
-    // pop in reverse LIFO
-    rdx = stack.pop();      // pop rdx
-    rsi = stack.pop();      // pop rsi
 
     const exit: () => void = () => {
         // free memory
         munmap();
     };
+
+    // TODO set rdx right again
 
     exit();
 }
@@ -213,5 +224,5 @@ rsi = 0;
 rdx = 5;
 fillArr();
 console.log(arr);
-const merge_res = AsmMergesort();
+const merge_res = mergesort_asm();
 console.log(arr.subarray(0, 5))

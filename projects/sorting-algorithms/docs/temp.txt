@@ -24,9 +24,17 @@ rbx: 1
 
 returning, due to rbx being: 1
 
-right middle:  0
+right middle:  1
 
-in mergesort with addr: 0 and length: 0
+in mergesort with addr: 1 and length: 1
+Int32Array(0) []
+rbx: 0
+
+returning, due to rbx being: 0
+
+right middle:  2
+
+in mergesort with addr: 2 and length: 2
 Int32Array(0) []
 rbx: 0
 
@@ -40,12 +48,7 @@ rbx: 0
 
 returning, due to rbx being: 0
 
-right middle:  0
-
-in mergesort with addr: 0 and length: 0
-Int32Array(0) []
-rbx: 0
-
-returning, due to rbx being: 0
+Increase buffer size from 40b to 0b.
+Increase buffer size from 10 elements to 0 elements.
 
 Int32Array(0) []
