@@ -32,12 +32,23 @@ Thus normally it's written direcly beneath each other, but since I wanted to cou
 Yet I completely forgot, that a `add rdi, 2` instruction changes the flags into an unusable state for conditional jumping.
 Thus I had to use `lea rdi, [rdi + 2]` which essentially does the same thing, but without affecting any flags.
 
-## 3. Keep `rsp` aligned with 16 byte
+## 3. Mergesort
 
-Whilst creating the `shared` folder, and testing the integrations, the `_print_arr` [in here](../../shared/print_arr.asm), became unaligned and thus jumped to nonsensical addresses.
+### Change
 
-> [print_arr.asm](../../shared/print_arr.asm)
+> [merge.ts](./merge.ts)
 
 ```diff
-
+    rcx = rax;          // pepare the counter
+    rbx = rax;          // prepare the comparator
+    rbx += rdx;         //  "       "   "
+    rsi = rax;          // prepare the starting index as the start of the new memory block
+-    fill_loop();
+    _mergesort();
 ```
+
+### Why it could be removed
+
+Filling up the left and right arrays is a common step in higher level languages implementing mergesort, but its not needed, as the left and right arrays arent modified, and only in the merge operation is a new array or rather a new memory buffer needed.
+
+## 4. Learned about [REP/REPE/REPZ/REPNE/REPNZ](https://www.felixcloutier.com/x86/rep:repe:repz:repne:repnz)

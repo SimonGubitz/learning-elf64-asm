@@ -2,42 +2,50 @@ Int32Array(5) [ 5, 4, 3, 2, 1 ]
 Increase buffer size from 20b to 40b.
 Increase buffer size from 5 elements to 10 elements.
 
-in mergesort with addr:  0  and rdx:  5
+
+in mergesort with addr: 0 and length: 5
 Int32Array(5) [ 5, 4, 3, 2, 1 ]
-middle:  3
-rsi:  0
-rdx:  3
-filled left with 5,4,3
-in mergesort with addr:  0  and rdx:  3
+rbx: 5
+left middle:  3
+
+in mergesort with addr: 0 and length: 3
 Int32Array(3) [ 5, 4, 3 ]
-middle:  2
-rsi:  0
-rdx:  2
-filled left with 5,4
-in mergesort with addr:  0  and rdx:  2
+rbx: 3
+left middle:  2
+
+in mergesort with addr: 0 and length: 2
 Int32Array(2) [ 5, 4 ]
-middle:  1
-rsi:  0
-rdx:  1
-filled left with 5
-in mergesort with addr:  0  and rdx:  1
+rbx: 2
+left middle:  1
+
+in mergesort with addr: 0 and length: 1
 Int32Array(1) [ 5 ]
-middle:  1
-rsi:  2
-rdx:  1
-filled right with 
-in mergesort with addr:  2  and rdx:  1
+rbx: 1
+
+returning, due to rbx being: 1
+
+right middle:  0
+
+in mergesort with addr: 0 and length: 0
 Int32Array(0) []
-middle:  1
-rsi:  2
-rdx:  1
-filled right with 
-in mergesort with addr:  2  and rdx:  1
+rbx: 0
+
+returning, due to rbx being: 0
+
+right middle:  0
+
+in mergesort with addr: 0 and length: 0
 Int32Array(0) []
-middle:  1
-rsi:  2
-rdx:  1
-filled right with 
-in mergesort with addr:  2  and rdx:  1
+rbx: 0
+
+returning, due to rbx being: 0
+
+right middle:  0
+
+in mergesort with addr: 0 and length: 0
 Int32Array(0) []
-Int32Array(1) [ 5 ]
+rbx: 0
+
+returning, due to rbx being: 0
+
+Int32Array(0) []

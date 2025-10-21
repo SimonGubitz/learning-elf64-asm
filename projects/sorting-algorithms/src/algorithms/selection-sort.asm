@@ -49,8 +49,6 @@ _selection_sort:
     jmp .inner_loop
 .inner_loop_end:
 
-
-.gdb_breakpoint:
     mov r8d, dword[r9 + rcx*4]     ; i
     cmp r8d, dword[r9 + rdx*4]     ; min
                                     ; i - min < 0 -> ZF = 1
@@ -61,7 +59,7 @@ _selection_sort:
     mov r8d, dword[r9 + rdx*4]
     mov dword[r9 + rcx*4], r8d
     mov dword[r9 + rdx*4], esi
-    lea rdi, [rdi + 4]              ; out of uniformity
+    lea rdi, [rdi + 4]              ; lea out of uniformity
 
     ; print out the message
 

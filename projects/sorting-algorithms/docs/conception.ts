@@ -33,7 +33,9 @@ function selectionSort(arr: number[]) {
     return arr; // ret
 }
 
-function mergesort(arr: number[]): number[] {
+function mergesort(arr: number[], source: string = ''): number[] {
+
+    console.log('in merge with source: ', source);
 
     if (arr.length <= 1) {
         return arr;
@@ -50,8 +52,8 @@ function mergesort(arr: number[]): number[] {
         r_arr.push(arr[i]);
     }
 
-    l_arr = mergesort(l_arr);
-    r_arr = mergesort(r_arr);
+    l_arr = mergesort(l_arr, 'left');
+    r_arr = mergesort(r_arr, 'right');
 
 
     const merge: (l_arr: number[], r_arr: number[]) => number[] = (l_arr: number[], r_arr: number[]) => {
@@ -85,4 +87,5 @@ function mergesort(arr: number[]): number[] {
 }
 
 
-console.log(mergesort([832, 32, 499, 427, 3, 6, 9, 1, 5, 2]));
+// console.log(mergesort([832, 32, 499, 427, 3, 6, 9, 1, 5, 2], 'full'));
+console.log(selectionSort([832, 32, 499, 427, 3, 6, 9, 1, 5, 2]));

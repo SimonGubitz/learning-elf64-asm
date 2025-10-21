@@ -84,15 +84,22 @@ let r15: number;
 const stack: any = [];
 // allow double the size, as O(n) + O(n) auxilliary space complexity in mergesort
 const arr_buff = new ArrayBuffer(4 * 5, { maxByteLength: 2 * 4 * 5 });
-const arr = new Int32Array(arr_buff);  // 32 bit (4 byte) integer array
+const arr = new Int32Array(arr_buff);  // 32 bit (4 byte) integer array -> although less a real array but the memory structure
 
 // just put it behind the array
-const mmap: (bytes: number) => number = (bytes: number) => {
-    let current_bytes = arr_buff.byteLength;
-    arr_buff.resize(current_bytes + bytes);
+const mmap = (options: {
+    addr?: number
+    length: number
+    prot?: string[]
+    flags?: string[]
+    fd?: number
+    offset?: number
+}) => {
+    const current_bytes = arr_buff.byteLength;
+    arr_buff.resize(current_bytes + options.length);
     console.log(`Increase buffer size from ${current_bytes}b to ${arr_buff.byteLength}b.`)
     console.log(`Increase buffer size from ${current_bytes / 4} elements to ${arr_buff.byteLength / 4} elements.\n`)
-    return arr_buff.byteLength;
+    return current_bytes;
 };
 const munmap: () => number = () => {
     // rdx was poped before
@@ -107,33 +114,34 @@ const fillArr = () => {
     }
 }
 
-/**
- * Assembly idiomatic mergesort
- * @param rsi in this case the index in the array, in assembly the real address
- * @param rdx the elements in the array, in assembly the 1/4 offset in the memory due to 4 byte sized int elements
- */
 function AsmMergesort() {
 
     const init: () => void = () => {
         // reserve more space
-        rax = mmap(4 * rdx);    // mmap returns the address of the new space in rax
+        rax = mmap({length: 4 * rdx});      // mmap returns the address of the new space in rax
+        rax /= 4;                           // to map this back into the style of element index instead of byte memory location TS/ASM Difference
     };
 
     init();
 
     /**
      * the main sorting function, seperated due to idiomatics
+     * Assembly idiomatic mergesort
+     * @param rsi in this case the index in the array, in assembly the real address
+     * @param rdx the elements in the array, in assembly the 1/4 offset in the memory due to 4 byte sized int elements
      */
     const _mergesort: () => void = () => {
-        console.log('in mergesort with addr: ', rsi, ' and rdx: ', rdx);
+        console.log('\nin mergesort with addr:', rsi, 'and length:', rdx);
         console.log(arr.subarray(rsi, rdx));
 
         rbx = rdx;      // mov rbx, rdx
         rbx -= rsi;     // sub rbx, rsi
+        console.log(`rbx: ${rbx}`);
         if (rbx <= 1) {         // cmp rbx 1, jle .return jmp, .skip
+            console.log('\nreturning, due to rbx being: ' + rbx + '\n');
             //.return:
-            stack.push(rsi);    // push rsi
-            stack.push(rdx);    // push rdx
+
+
             return;             // ret
         }
         // .skip:
@@ -141,53 +149,34 @@ function AsmMergesort() {
         stack.push(rsi);        // push rsi
         stack.push(rdx);        // push rdx
 
-        /**
-         * @param rsi start address
-         * @param rdx length
-         */
-        const fill_arr: (source?: string) => void = (source: string = '') => {
-            stack.push(rsi);
-            stack.push(rdx);
 
-            // starting at rdx for rax times
-
-
-            console.log('rsi: ', rsi);
-            console.log('rdx: ', rdx);
-            console.log(`filled ${source} with ${arr.subarray(rsi, rdx)}`)
-
-            rdx = stack.pop();
-            rsi = stack.pop();
-            return
-        }
-
-        // left
-        // rax still holds the address of the new memory block
-        // rsi = rax;              // mov rsi, rax
-        // get the middlepoint
+        // stack.push(rax);
+        // maybe align the stack here
+        // add rsp, 8
         rax = rdx;
         rcx = 2;
         rdx = rax % rcx;
         rax = Math.floor(rax / rcx);    // idiv rcx
         rdx += rax;                     // add rdx, rax
-                                        // now the bigger side is left
-                                        // rax now also holds the length of the rest
+        // now the bigger side is left
+        // rax now also holds the length of the rest
 
-        console.log('middle: ', rdx);   // middle -> last element of left
-        fill_arr('left');
+        console.log('left middle: ', rdx);  // middle -> last element of left
+        stack.push(rdx);                    // push the middle
+        stack.push(rsi);
         _mergesort();
 
 
         // right
-        rsi = rdx;
-        rsi += 1;   // one more than the last of left
-        rdx = stack.pop();
+        rsi = stack.pop();                  // pop the middle
+        rdx = stack.pop();                  // pop the middle
+        rsi = rdx;                          // 
         stack.push(rdx);    // the length of the original array
-        console.log('middle: ', rdx);
-        fill_arr('right');
+        console.log('right middle: ', rdx);
         _mergesort();
 
 
+        // how to preserve the left and right arr addresses?
 
         const merge: () => void = () => {
 
@@ -197,6 +186,13 @@ function AsmMergesort() {
     };
 
     _mergesort();
+
+
+    const memcpy: () => void = () => {
+
+    };
+
+    memcpy();
 
 
     // ? here or above merge call

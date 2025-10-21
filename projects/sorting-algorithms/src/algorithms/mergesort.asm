@@ -53,7 +53,7 @@ _mergesort:
     ; https://linux.die.net/man/2/mmap
     mov rax, SYS_MMAP
     mov rdi, addr           ; address
-    lea rsi, len            ; length
+    mov rsi, len            ; length
     mov rdx, PROT_WRITE     ; prot
     mov r10, MAP_PRIVATE
     or  r10, MAP_ANONYMOUS  ; flags
@@ -94,7 +94,7 @@ _mergesort:
     ; https://linux.die.net/man/2/munmap
     mov rax,
     mov rdi,                ; address
-    lea rsi,                ; length
+    mov rsi,                ; length
     mov rdx,                ; prot
     mov r10,
     or  r10,                ; flags

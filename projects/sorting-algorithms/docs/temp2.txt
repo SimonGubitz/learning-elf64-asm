@@ -1,0 +1,23 @@
+in merge with source:  full
+in merge with source:  left
+in merge with source:  left
+in merge with source:  left
+in merge with source:  right
+in merge with source:  right
+in merge with source:  left
+in merge with source:  right
+in merge with source:  left
+in merge with source:  right
+in merge with source:  right
+in merge with source:  left
+in merge with source:  left
+in merge with source:  right
+in merge with source:  right
+in merge with source:  left
+in merge with source:  right
+in merge with source:  left
+in merge with source:  right
+[
+  1,  2,   3,   5,   6,
+  9, 32, 427, 499, 832
+]
