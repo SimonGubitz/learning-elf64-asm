@@ -23,12 +23,15 @@ let rcx: number;
 
 /*
  * start index in the array
- * start address of the (sub)array
+        console.log(`before middle calculation`)
+        console.log(`rsi: ${rsi}`);
+        console.log(`rdi: ${rdi}`);
+        console.log(`rdx: ${rdx}`);l * start address of the (sub)array
  */
 let rsi: memory_address;
 
 /**
- * compare length register
+ *
  */
 let rbx: number;
 
@@ -120,17 +123,23 @@ const munmap: () => number = () => {
 };
 
 // debug simple 5 to 1
-const fillArr = () => {
-    for (let i = rdi; i >= 0; i--) {
-        arr[rdi - i] = i;
+const fillArr = (length: number) => {
+    console.log(`length: ${length}`);
+    for (let i = 0; i <= length; i++) {
+	    arr[i] = length - i;
     }
 }
 
 function mergesort_asm() {
 
+    // calculate the length once to allocate the correct amount of memory
+    rdx = rdi;
+    rdx -= rsi;
+    rdx += 1; // * inc rdx
+
     const init: () => void = () => {
         // reserve more space
-        rax = mmap({length: 4 * rdi});      // mmap returns the address of the new space in rax
+        rax = mmap({length: rdx * 4});      // mmap returns the address of the new space in rax
         rax /= 4;                           // to map this back into the style of element index instead of byte memory location TS/ASM Difference
     };
 
@@ -143,18 +152,15 @@ function mergesort_asm() {
      * @param rdi the elements in the array, in assembly the 1/4 offset in the memory due to 4 byte sized int elements
      */
     const _mergesort: () => void = () => {
+	    rdx = rdi;
+    	rdx -= rsi;
+
         console.log('\nin mergesort with addr:', rsi, 'and end index:', rdi);
         console.log(arr.subarray(rsi, rdi));
 
-        rbx = rdi;      // * mov rbx, rdi
-        rbx -= rsi;     // * sub rbx, rsi
-        console.log(`rbx: ${rbx}`);
-        if (rbx <= 1) {         // * cmp rbx 1, jle .return jmp, .skip
-            console.log('\nreturning, due to rbx being: ' + rbx + '\n');
+        if (rdx <= 1) {         // * cmp rdx 1, jle .return jmp, .skip
+            console.log('\nreturning, due to rdx being: ' + rdx + '\n');
             // * .return:
-
-
-
 
             return;             // * ret
         }
@@ -182,17 +188,24 @@ function mergesort_asm() {
         console.log(`rdi: ${rdi}`);
         console.log(`rdx: ${rdx}`);
 
-        rax = rdx;                      // ! this still uses end instead of length -> thus only working in 0-index arrays not addresses
-        rcx = 2;                        // divisor = 2
-        rdx = rax % rcx;                // simulate clobering rdx register in idiv operation
-        rax = Math.floor(rax / rcx);    // * idiv rcx
-        rdx += rax;                     // * add rdi, rax
+        //rax = rdx;                      // ! this still uses end instead of length -> thus only working in 0-index arrays not addresses
+        //rcx = 2;                        // divisor = 2
+        //rdx = rax % rcx;                // simulate clobering rdx register in idiv operation
+        //rax = Math.floor(rax / rcx);    // * idiv rcx
+        //rdx += rax;                     // * add rdi, rax
+
+        // goal: rdi needs the middle INDEX
+        rax = rdx;			// set the dividend as the length
+        rcx = 2;			// set the divisor as 2
+        rdx = rax % rcx;		// simulate rdx clobber
+        rax = Math.floor(rax / rcx);	// * idiv rcx -> divide rax by rcx
 
 
-        console.log(`before middle calculation`)
-        console.log(`rsi: ${rsi}`);
-        console.log(`rdi: ${rdi}`);
-        console.log(`rdx: ${rdx}`);
+        // goal: get rdi to have the end ADDRESS
+        // set the end INDEX
+        rdi = rax;	// * lea rdi, [rax * 4] <- ADDRESS OFFSET
+        rdi += rsi;	// add to get the end ADDRESS
+
 
         console.log('in left, middle: ', rdi);  // middle -> last element of left
         _mergesort();
@@ -200,12 +213,14 @@ function mergesort_asm() {
 
         // RIGHT
 
-        rdi = stack.pop();                  // length -> pop the length of the previous array -> end index
-        rdi -= 1;                           // zero indexed
-        console.log(`popped rdi: ${rdi}`);
+        // i believe rdi and rsi are switched around
 
-        rsi = stack.pop();                  // end -> this pops the end index of the left side
+        rsi = stack.pop();                  // length -> pop the length of the previous array -> start index
+        rsi -= 1;                           // zero indexed
         console.log(`popped rsi: ${rsi}`);
+
+        rdi = stack.pop();                  // end -> this pops the end index of the left side
+        console.log(`popped rdi: ${rdi}`);
 
         r8 = stack.pop();                   // start -> unneccesary for this
         console.log(`popped r8: ${r8}`);
@@ -254,7 +269,7 @@ function mergesort_asm() {
 // call it with the full array
 rsi = 0;
 rdi = 4;
-fillArr();
+fillArr(rdi - rsi + 1);
 console.log(arr);
 const merge_res = mergesort_asm();
 console.log(arr.subarray(0, 4))
