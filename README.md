@@ -14,6 +14,8 @@ Files are automatically updated, as the volume is shared between the emulated sy
 ## How to debug
 
 Generally its easy to debug any project. Use the `make debug <project-name>` target to start directly in debug mode.
+For easy debugging there is a preconfigured `gdbcmds.gdb` which includes a preconfigured breakpoint, thus you only need to copy `gdb_breakpoint` onto the desired breakpoint, and run gdb with `gdb -x debug/gdbcmds.gdb -q ./build/<file>`.
+Furthermore, when debugging there is no need to run `make` before gdb, as the config does that itself.
 
 ### Linux
 

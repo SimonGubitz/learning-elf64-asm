@@ -30,13 +30,14 @@
 
 # Build directories
 **/build/*
-!**/build/gdbcmds.txt
 **/dist/*
 **/Debug/*
 **/Release/*
 
-# Debug directories
+# Debug directories and files
 **/debug/*
+**/debug_output.tmp
+!/debug/gdbcmds.gdb
 
 # IDE specific
 # Visual Studio

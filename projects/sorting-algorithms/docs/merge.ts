@@ -21,7 +21,7 @@ let rdx: number;
  */
 let rcx: number;
 
-/**
+/*
  * start index in the array
  * start address of the (sub)array
  */
@@ -174,11 +174,25 @@ function mergesort_asm() {
 
         // LEFT
 
-        rax = rdi;                      // ! this still uses end instead of length -> thus only working in 0-index arrays not addresses
+
+        // console log hell here
+
+        console.log(`before middle calculation`)
+        console.log(`rsi: ${rsi}`);
+        console.log(`rdi: ${rdi}`);
+        console.log(`rdx: ${rdx}`);
+
+        rax = rdx;                      // ! this still uses end instead of length -> thus only working in 0-index arrays not addresses
         rcx = 2;                        // divisor = 2
         rdx = rax % rcx;                // simulate clobering rdx register in idiv operation
         rax = Math.floor(rax / rcx);    // * idiv rcx
         rdx += rax;                     // * add rdi, rax
+
+
+        console.log(`before middle calculation`)
+        console.log(`rsi: ${rsi}`);
+        console.log(`rdi: ${rdi}`);
+        console.log(`rdx: ${rdx}`);
 
         console.log('in left, middle: ', rdi);  // middle -> last element of left
         _mergesort();
