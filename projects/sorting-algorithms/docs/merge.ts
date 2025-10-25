@@ -47,13 +47,13 @@ let rsp: number;
 let rdi: number;
 
 /**
- * temporary stash for previous array length
- * will pop into it just garbage
+ * second/right iterator in the merge function
+ * previously short lived gargabe collector to pop the full stash.
  */
 let r8: number;
 
 /**
- *
+ * 
  */
 let rbp: number;
 
@@ -154,12 +154,14 @@ function mergesort_asm() {
     const _mergesort: () => void = () => {
 	    rdx = rdi;
     	rdx -= rsi;
+        rdx += 1;
 
         console.log('\nin mergesort with addr:', rsi, 'and end index:', rdi);
-        console.log(arr.subarray(rsi, rdi));
+        console.log(arr.subarray(rsi, rdi + 1));
+        console.log(`rdx is: ${rdx}`);
 
         if (rdx <= 1) {         // * cmp rdx 1, jle .return jmp, .skip
-            console.log('\nreturning, due to rdx being: ' + rdx + '\n');
+            console.log('\nreturning, due to rdx being: ' + rdx);
             // * .return:
 
             return;             // * ret
@@ -179,6 +181,7 @@ function mergesort_asm() {
 
 
         // LEFT
+        console.log('\nLEFT');
 
 
         // console log hell here
@@ -188,15 +191,9 @@ function mergesort_asm() {
         console.log(`rdi: ${rdi}`);
         console.log(`rdx: ${rdx}`);
 
-        //rax = rdx;                      // ! this still uses end instead of length -> thus only working in 0-index arrays not addresses
-        //rcx = 2;                        // divisor = 2
-        //rdx = rax % rcx;                // simulate clobering rdx register in idiv operation
-        //rax = Math.floor(rax / rcx);    // * idiv rcx
-        //rdx += rax;                     // * add rdi, rax
-
         // goal: rdi needs the middle INDEX
-        rax = rdx;			// set the dividend as the length
-        rcx = 2;			// set the divisor as 2
+        rax = rdx;			    // set the dividend as the length
+        rcx = 2;			    // set the divisor as 2
         rdx = rax % rcx;		// simulate rdx clobber
         rax = Math.floor(rax / rcx);	// * idiv rcx -> divide rax by rcx
 
@@ -212,11 +209,9 @@ function mergesort_asm() {
 
 
         // RIGHT
-
-        // i believe rdi and rsi are switched around
+        console.log('\nRIGHT');
 
         rsi = stack.pop();                  // length -> pop the length of the previous array -> start index
-        rsi -= 1;                           // zero indexed
         console.log(`popped rsi: ${rsi}`);
 
         rdi = stack.pop();                  // end -> this pops the end index of the left side
@@ -224,16 +219,89 @@ function mergesort_asm() {
 
         r8 = stack.pop();                   // start -> unneccesary for this
         console.log(`popped r8: ${r8}`);
+        
+        // push it all again in order ( start, end, length )
+        stack.push(r8);
+        stack.push(rdi);
+        stack.push(rsi);
+
 
         console.log('in right, middle: ', rdi);
         _mergesort();
 
+       
 
         // how to preserve the left and right arr addresses?
 
+        /**
+         * Merge the two split arrs into the newly created buffer
+         * @param rsi - Left starting index
+         * @param rdi - Right starting index
+         * @param rdx - Length of the left array
+         * @param rbx - Length of the right array
+         */
         const merge: () => void = () => {
+
+            rcx = 0;    // * xor rcx, rcx - left index
+            r8  = 0;    // * xor r8, r8 - right index
+
+            // rbx holding the left length comporarily
+            rbx = rdi;  // * mov rbx, rdi
+            rbx -= rsi; // * sub rbx, rsi
+
+
+            console.log('=====================');
             console.log('merging');
+            console.log('=====================');
+            console.log(`rsi left: ${rsi}`);
+            console.log(`rdi right: ${rdi}`);
+            console.log(`rdx length: ${rdx}`);
+            console.log(`rbx length: ${rdx}`);
+
+
+            console.log(`thus wanting to merge ${rsi, rbx} and ${arr.subarray(rdi, rdx)}`);
+
+
+            const merge_loop: () => void = () => {
+                if (rcx <= rbx) {// * cmp rcx, rbx
+                    console.log(`exiting merge due to left index: ${rcx} <= length: ${rbx}\n`);
+                    // * je .exit_loop
+                    return;
+                }
+                if (r8 <= rdx) {
+                    // * je .exit_loop
+                    return;
+                }
+
+                // in "while" now
+
+                // mov r9d, byte[arr + rcx * 4]
+                // cmp r9d, byte[arr + r8 * 4]
+                // jle .push_left
+                // jmp .push_right
+                // .push_left:
+                // .push_right:
+
+                r9 = arr[rcx];
+                if (r9 <= arr[r8]) {
+                    // dilema: call push_left and push_left as a subroutine, for reuseablility or inline and multiple equal labels for... yeah for what?
+                    push_left();
+                } else {
+                    push_right();
+                }
+
+
+
+                merge_loop(); // * jmp merge_loop
+            };
+            merge_loop();
+            // pop here
         };
+
+
+        // rsi is already set as the right start index -> thus 
+        rdi = rsi;
+        
 
         merge();
     };
@@ -251,7 +319,9 @@ function mergesort_asm() {
 
     // ? here or above merge call
     rdi = stack.pop();      // * pop rdi
+    console.log(`exit: popped rdi: ${rdi}`);
     rsi = stack.pop();      // * pop rsi
+    console.log(`exit: popped rsi: ${rsi}`);
     memcpy();
 
 
@@ -259,12 +329,14 @@ function mergesort_asm() {
     const exit: () => void = () => {
         // free memory
         munmap();
+
+        return; // * ret
     };
 
     // TODO set rdi right again
 
     exit();
-}
+rsi}
 
 // call it with the full array
 rsi = 0;
@@ -272,4 +344,4 @@ rdi = 4;
 fillArr(rdi - rsi + 1);
 console.log(arr);
 const merge_res = mergesort_asm();
-console.log(arr.subarray(0, 4))
+console.log(arr.subarray(rsi, rdi + 1))
