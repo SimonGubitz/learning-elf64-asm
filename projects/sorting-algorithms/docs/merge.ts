@@ -44,13 +44,13 @@ let rsp: number;
  * end index in the array
  * end address of the (sub)array
  */
-let rdi: number;
+let rdi: memory_address;
 
 /**
  * second/right iterator in the merge function
  * previously short lived gargabe collector to pop the full stash.
  */
-let r8: number;
+let r8: memory_address | number;
 
 /**
  * 
@@ -60,17 +60,12 @@ let rbp: number;
 /**
  *
  */
-let r10: number;
-
-/**
- *
- */
 let r9: number;
 
 /**
  *
  */
-let r12: number;
+let r10: number;
 
 /**
  *
@@ -78,14 +73,19 @@ let r12: number;
 let r11: number;
 
 /**
- *
+ * Callee saved, holding the address of the new memory block (buffer)
  */
-let r14: number;
+let r12: number;
 
 /**
  *
  */
 let r13: number;
+
+/**
+ *
+ */
+let r14: number;
 
 /**
  *
@@ -132,6 +132,8 @@ const fillArr = (length: number) => {
 
 function mergesort_asm() {
 
+    stack.push(r12);
+
     // calculate the length once to allocate the correct amount of memory
     rdx = rdi;
     rdx -= rsi;
@@ -141,6 +143,8 @@ function mergesort_asm() {
         // reserve more space
         rax = mmap({length: rdx * 4});      // mmap returns the address of the new space in rax
         rax /= 4;                           // to map this back into the style of element index instead of byte memory location TS/ASM Difference
+
+        r12 = rax;                          // * mov r12, rax
     };
 
     init();
@@ -239,15 +243,12 @@ function mergesort_asm() {
          * @param rdi - Right starting index
          * @param rdx - Length of the left array
          * @param rbx - Length of the right array
+         * @param rax - "global" offset
          */
         const merge: () => void = () => {
 
             rcx = 0;    // * xor rcx, rcx - left index
             r8  = 0;    // * xor r8, r8 - right index
-
-            // rbx holding the left length comporarily
-            rbx = rdi;  // * mov rbx, rdi
-            rbx -= rsi; // * sub rbx, rsi
 
 
             console.log('=====================');
@@ -255,22 +256,61 @@ function mergesort_asm() {
             console.log('=====================');
             console.log(`rsi left: ${rsi}`);
             console.log(`rdi right: ${rdi}`);
-            console.log(`rdx length: ${rdx}`);
-            console.log(`rbx length: ${rdx}`);
+            console.log(`rdx / left length: ${rdx}`);
+            console.log(`rbx / right length: ${rdx}`);
+            console.log('\n');
 
 
-            console.log(`thus wanting to merge ${rsi, rbx} and ${arr.subarray(rdi, rdx)}`);
+            console.log(`thus wanting to merge rsi: ${arr[rsi]} and rbx: ${arr[rbx]} and ${arr.subarray(rdi, rdx + 1)}`);
+
+            /**
+             * Writing the value at r12 + rcx into the buffer
+             * @param rcx - left index offset
+             * @param rsi - left start address
+             * @param r12 - global offset
+             */
+            const push_left: () => void = () => {
+                console.log(' === MERGE LEFT === ');
+                console.log(`rcx / offset: ${rcx}`);
+                console.log(`rsi /  start: ${rsi}`);
+                console.log(`r12 / offset: ${r12}`);
+                
+                // write dword[rsi + rcx*4] into dword[r12 + rcx*4]
+                arr[r12 + rcx] = arr[rsi + rcx];
+                
+                console.log(`arr after push/merge`);
+                console.log(arr);
+            };
+
+            /**
+             * Writing the value at r12 + r8 into the buffer 
+             * @param r8 - right index offset
+             * @param rdi - right start address
+             * @param r12 - global offset
+             */
+            const push_right: () => void = () => {
+                console.log(' === MERGE RIGHT === ');
+                console.log(`r8  / offset: ${r8}`);
+                console.log(`rdi /  start: ${rdi}`);
+                console.log(`r12 / offset: ${r12}`);
+
+                // write dword[rdi + r8*4] into dword[r12 + r8*4]
+                arr[r12 + rcx] = arr[rdi + rcx];
 
 
-            const merge_loop: () => void = () => {
-                if (rcx <= rbx) {// * cmp rcx, rbx
-                    console.log(`exiting merge due to left index: ${rcx} <= length: ${rbx}\n`);
-                    // * je .exit_loop
-                    return;
+                console.log(`arr after push/merge`);
+                console.log(arr);
+            };
+
+
+            const merge_while_loop: () => void = () => {
+                if (rcx >= rdx) { // * cmp rcx, rdx
+                    console.log(`exiting merge due to left index: ${rcx} >= length: ${rbx}\n`);
+                    return; // * je .exit_loop
                 }
-                if (r8 <= rdx) {
-                    // * je .exit_loop
-                    return;
+                if (r8 >= rbx) { // * cmp r8, rbx
+                     console.log(`exiting merge due to right index: ${r8} >= length: ${rbx}\n`);
+                     return; // * je .exit_loop
                 }
 
                 // in "while" now
@@ -282,26 +322,79 @@ function mergesort_asm() {
                 // .push_left:
                 // .push_right:
 
-                r9 = arr[rcx];
-                if (r9 <= arr[r8]) {
-                    // dilema: call push_left and push_left as a subroutine, for reuseablility or inline and multiple equal labels for... yeah for what?
+                // no two dereference operations in one instruction
+                r9 = arr[rsi + rcx];
+                if (r9 <= arr[rdi + r8]) {
+                    console.log(`${r9} <= ${arr[r8]}`);
                     push_left();
+                    rcx += 1; // * inc rcx
                 } else {
+                    console.log(`${r9} > ${arr[r8]}`);
                     push_right();
+                    r8 += 1;
                 }
 
-
-
-                merge_loop(); // * jmp merge_loop
+                rcx += 1; // * inc rcx
+                merge_while_loop(); // * jmp merge_while_loop
             };
-            merge_loop();
+            merge_while_loop();
+
+
+            /**
+             * Merging the remaining elements from the left arr
+             * @param rcx - remains as the left index
+             */
+            const merge_left_for_loop: () => void = () => {
+                // * cmp rcx, rdx
+                if (rcx >= rdx) {
+                    console.log(`${rcx} >= ${rbx}`);
+                    return;
+                }
+
+                // in "for" now
+                push_left();    // * call .push_left
+
+                rcx += 1;               // * inc rcx               
+                merge_left_for_loop();  // * jmp merge_left_for_loop
+            };
+            merge_left_for_loop();
+            
+
+            /**
+             * Merging the remaining elements from the right array
+             * @param r8 - remains as the right index
+             */
+            const merge_right_for_loop: () => void = () => {
+                // * cmp r8, rbx
+                if (r8 >= rbx) {
+                    console.log(`${r8} >= ${rbx}`);
+                    return;
+                }
+
+                // in "for" now
+                push_right();           // * call .push_right
+
+                r8 += 1;                // * inc r8 
+                merge_right_for_loop(); // * jmp merge_right_for_loop
+           };
+            merge_right_for_loop();
+            
             // pop here
+
+            return;
         };
 
 
         // rsi is already set as the right start index -> thus 
-        rdi = rsi;
-        
+        rdi = rsi; // right starting index
+        // right length is already set by the comparison in mergesort recursion
+        rdx = stack.pop(); // left array length
+        r8  = stack.pop(); // <- left end index
+        rsi = stack.pop(); // left starting index
+    
+        // rbx holding the left length temporarily
+        rbx = rdi;  // * mov rbx, rdi
+        rbx -= rsi; // * sub rbx, rsi
 
         merge();
     };
@@ -330,13 +423,15 @@ function mergesort_asm() {
         // free memory
         munmap();
 
+        r12 = stack.pop();
+
         return; // * ret
     };
 
     // TODO set rdi right again
 
     exit();
-rsi}
+}
 
 // call it with the full array
 rsi = 0;
