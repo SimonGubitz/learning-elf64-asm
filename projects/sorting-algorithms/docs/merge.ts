@@ -243,7 +243,9 @@ function mergesort_asm() {
          * @param rdi - Right starting index
          * @param rdx - Length of the left array
          * @param rbx - Length of the right array
-         * @param rax - "global" offset
+         * @param rax - buffer offset
+         * ----------- i dont know about this below ----------------
+         * @param dest - idk which register and I hate the rsi rdi left right and not source (rax) and dest (whatever) thing I do now 
          */
         const merge: () => void = () => {
 
@@ -261,7 +263,7 @@ function mergesort_asm() {
             console.log('\n');
 
 
-            console.log(`thus wanting to merge rsi: ${arr[rsi]} and rbx: ${arr[rbx]} and ${arr.subarray(rdi, rdx + 1)}`);
+            console.log(`thus wanting to merge rsi-rdx: ${arr.subarray(rsi, rsi + rdx)} and rdi-rbx: ${arr.subarray(rdi, rdi + rbx)}`);
 
             /**
              * Writing the value at r12 + rcx into the buffer
@@ -276,10 +278,12 @@ function mergesort_asm() {
                 console.log(`r12 / offset: ${r12}`);
                 
                 // write dword[rsi + rcx*4] into dword[r12 + rcx*4]
-                arr[r12 + rcx] = arr[rsi + rcx];
+                arr[r12 + rax] = arr[rsi + rcx];
                 
                 console.log(`arr after push/merge`);
                 console.log(arr);
+                rcx += 1;
+                rax += 1;
             };
 
             /**
@@ -295,21 +299,24 @@ function mergesort_asm() {
                 console.log(`r12 / offset: ${r12}`);
 
                 // write dword[rdi + r8*4] into dword[r12 + r8*4]
-                arr[r12 + rcx] = arr[rdi + rcx];
+                arr[r12 + rax] = arr[rdi + r8];
 
 
                 console.log(`arr after push/merge`);
                 console.log(arr);
+
+                r8  += 1;
+                rax += 1;
             };
 
 
             const merge_while_loop: () => void = () => {
                 if (rcx >= rdx) { // * cmp rcx, rdx
-                    console.log(`exiting merge due to left index: ${rcx} >= length: ${rbx}\n`);
+                    console.log(`exiting merge_while due to left index: ${rcx} >= length: ${rbx}\n`);
                     return; // * je .exit_loop
                 }
                 if (r8 >= rbx) { // * cmp r8, rbx
-                     console.log(`exiting merge due to right index: ${r8} >= length: ${rbx}\n`);
+                     console.log(`exiting merge_while due to right index: ${r8} >= length: ${rbx}\n`);
                      return; // * je .exit_loop
                 }
 
@@ -325,16 +332,13 @@ function mergesort_asm() {
                 // no two dereference operations in one instruction
                 r9 = arr[rsi + rcx];
                 if (r9 <= arr[rdi + r8]) {
-                    console.log(`${r9} <= ${arr[r8]}`);
+                    console.log(`in while: ${r9} <= ${arr[r8]}, pushing left`);
                     push_left();
-                    rcx += 1; // * inc rcx
                 } else {
-                    console.log(`${r9} > ${arr[r8]}`);
+                    console.log(`in while: ${r9} > ${arr[r8]}, pushing right`);
                     push_right();
-                    r8 += 1;
                 }
 
-                rcx += 1; // * inc rcx
                 merge_while_loop(); // * jmp merge_while_loop
             };
             merge_while_loop();
@@ -347,14 +351,13 @@ function mergesort_asm() {
             const merge_left_for_loop: () => void = () => {
                 // * cmp rcx, rdx
                 if (rcx >= rdx) {
-                    console.log(`${rcx} >= ${rbx}`);
+                    console.log(`exiting left for: ${rcx} >= ${rbx}`);
                     return;
                 }
 
                 // in "for" now
                 push_left();    // * call .push_left
 
-                rcx += 1;               // * inc rcx               
                 merge_left_for_loop();  // * jmp merge_left_for_loop
             };
             merge_left_for_loop();
@@ -367,14 +370,13 @@ function mergesort_asm() {
             const merge_right_for_loop: () => void = () => {
                 // * cmp r8, rbx
                 if (r8 >= rbx) {
-                    console.log(`${r8} >= ${rbx}`);
+                    console.log(`exiting right for: ${r8} >= ${rbx}`);
                     return;
                 }
 
                 // in "for" now
                 push_right();           // * call .push_right
 
-                r8 += 1;                // * inc r8 
                 merge_right_for_loop(); // * jmp merge_right_for_loop
            };
             merge_right_for_loop();
