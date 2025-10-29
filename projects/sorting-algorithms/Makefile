@@ -16,7 +16,7 @@ SHARED_SRC = 	$(SHARED_DIR)/write_syscall.asm \
 			 	$(SHARED_DIR)/itoa.asm
 
 PROJECT_OBS = $(PROJECT_SRC:$(SRC_DIR)/%.asm=$(BUILD_DIR)/%.o)
-SHARED_OBS  = $(SHARED_SRC:.asm=.o)
+SHARED_OBS  = $(SHARED_SRC:$(SHARED_DIR)/%.asm=$(BUILD_DIR)/shared/%.o)
 OBS = $(PROJECT_OBS) $(SHARED_OBS)
 
 BIN = $(BUILD_DIR)/sorting-algorithms
@@ -26,11 +26,17 @@ BIN = $(BUILD_DIR)/sorting-algorithms
 all: $(BIN)
 
 $(BIN): $(OBS) 
-	$(LD) $(LDFLAGS) $(OBJS) -o $@
+	$(LD) $(LDFLAGS) $(OBS) -o $@
 
-%.o: %.asm
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.asm
+	@echo "Building $@"
 	mkdir -p $(dir $@)
 	$(ASM) $(ASMFLAGS) -o $@ $< 
+
+$(BUILD_DIR)/shared/%.o: $(SHARED_DIR)/%.asm
+	@echo "Building $(dir $@)/$@"
+	mkdir -p $(dir $@)
+	$(ASM) $(ASMFLAGS) -o $@ $<
 
 run: all
 	./$(BIN)

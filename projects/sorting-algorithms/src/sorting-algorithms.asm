@@ -8,7 +8,7 @@ extern _itoa
 
 SYS_EXIT equ 0x3c
 
-arr_len equ 50000
+arr_len equ 500900
 
 section .bss
     itoa_buff resb 32
