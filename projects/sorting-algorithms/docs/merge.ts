@@ -245,7 +245,7 @@ function mergesort_asm() {
          * @param rbx - Length of the right array
          * @param rax - buffer offset
          * ----------- i dont know about this below ----------------
-         * @param dest - idk which register and I hate the rsi rdi left right and not source (rax) and dest (whatever) thing I do now 
+         * @param dest - idk which register and I hate the rsi rdi left right and not source (rax) and dest (whatever) thing I do now
          */
         const merge: () => void = () => {
 
@@ -382,6 +382,9 @@ function mergesort_asm() {
             merge_right_for_loop();
             
             // pop here
+            
+
+            // change the dest address?
 
             return;
         };

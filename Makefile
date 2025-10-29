@@ -4,7 +4,7 @@ PROJECT := $(word 2, $(MAKECMDGOALS))
 UNAME_S := $(shell uname -s)	# Linux, Darwin
 IS_WINDOWS := $(shell [ "$(OS)" = "Windows_NT" ] && echo yes)
 
-.PHONY: new-project debug
+.PHONY: all new-project setup-mac-debug debug clean-debug run
 
 all:
 	@echo "Enter a Make target"
@@ -66,9 +66,10 @@ endif
 clean-debug:
 	rm -rf debug
 
+# slightly complicated, but needed as to bind the "shared" directory in as well
 run:
 ifeq ($(strip $(UNAME_S)),Linux)
-ifndef ($(PROJECT))
+ifndef PROJECT
 	cd projects
 else
 	cd projects/$(PROJECT)
@@ -76,17 +77,26 @@ else
 endif
 else # on Mac or Windows
 	docker build -t $(DOCKER_NAME) --platform linux/amd64 .
+
+	# if the project does not exists
+ifndef PROJECT
+	@echo "Did not find $(PROJECT)"
+	docker run --rm -it \
+		--platform linux/amd64 \
+		-v $$(pwd):/app/ \
+		-w /app \
+		$(DOCKER_NAME)
+else
+	@echo "Running $(PROJECT) now"
 	if [ -d "projects/$(PROJECT)" ]; then \
 		docker run --rm -it \
 			--platform linux/amd64 \
 			-v $$(pwd):/app/ \
 			-w /app/projects/$(PROJECT) \
-			$(DOCKER_NAME) \
+			$(DOCKER_NAME); \
 	else \
-		docker run --rm -it \
-			--platform linux/amd64 \
-			-v $$(pwd):/app/ \
-			-w /app \
-			$(DOCKER_NAME) \
-    fi
+		echo "Project doesn't exist"; \
+		exit 1; \
+	fi
+endif
 endif
