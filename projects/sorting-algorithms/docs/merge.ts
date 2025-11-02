@@ -292,6 +292,7 @@ function mergesort_asm() {
 				console.log(' === MERGE LEFT === ');
 				console.log(`rcx / offset: ${rcx}`);
 				console.log(`rsi /  start: ${rsi}`);
+				console.log(`r12 / offset: ${r12}`);
 				console.log(`r13 / offset: ${r13}`);
 
 				// * lea r10, [r13 + rsi]
@@ -302,7 +303,8 @@ function mergesort_asm() {
 				// write original + iterator into buffer + iterator
 				// write dword[rsi + rcx*4]  into dword[r13 + rcx*4]
 
-				arr[r13 + rax] = arr[r12 + rsi + rcx];
+				arr[r13 + rsi + rcx] = arr[r12 + rsi + rcx];
+
 				console.log(`arr after push/merge`);
 				console.log(arr);
 				rcx += 1;
@@ -319,10 +321,11 @@ function mergesort_asm() {
 				console.log(' === MERGE RIGHT === ');
 				console.log(`r8  / offset: ${r8}`);
 				console.log(`rdi /  start: ${rdi}`);
+				console.log(`r12 / offset: ${r12}`);
 				console.log(`r13 / offset: ${r13}`);
 
 				// write dword[rdi + r8*4] into dword[r13 + r8*4]
-				arr[r13 + r8] = arr[rdi + r8];
+				arr[r13 + rdi + r8] = arr[r12 + rdi + r8];
 
 
 				console.log(`arr after push/merge`);
