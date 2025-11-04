@@ -8,11 +8,13 @@ type memory_address = number;
 
 /**
  * temporarily holds the address of the new memory block
+ * later hold the full buffer iterator offset (TODO)
  */
 let rax: memory_address;
 
 /**
  * length of the (sub)array
+ * in the merge steps only the length of the left (sub)array
  */
 let rdx: number;
 
@@ -24,10 +26,6 @@ let rcx: number;
 
 /*
  * start index in the array
-	console.log(`before middle calculation`)
-	console.log(`rsi: ${rsi}`);
-	console.log(`rdi: ${rdi}`);
-	console.log(`rdx: ${rdx}`); * start address of the (sub)array
  */
 let rsi: memory_address;
 
@@ -116,7 +114,7 @@ const mmap = (options: {
 	return current_bytes;
 };
 const munmap: () => number = () => {
-	// rdi was poped before
+	// rdi was popped before
 	const current_bytes = arr_buff.byteLength;
 	arr_buff.resize( rdi * 4 );
 	console.log(`Increase buffer size from ${current_bytes}b to ${arr_buff.byteLength}b.`);
@@ -150,16 +148,16 @@ function mergesort_asm() {
 
 
 		// the starting memory region -> the "original" array
-		r12 = rsi;			// 
+		r12 = rsi;
 
 		// write the global memory offset into r13
 		r13 = rax;			// * mov r13, rax
 	};
-
 	init();
 
+
 	/**
-	 *  The main sorting function, seperated due to idiomatics
+	 * The main sorting function, seperated due to idiomatics
 	 * Assembly idiomatic mergesort
 	 * @param rsi - start index
 	 * @param rdi - end index
@@ -184,25 +182,23 @@ function mergesort_asm() {
 
 		// push the start, end and length
 		stack.push(rsi);        // push start index
-		console.log(`pushed rsi ${rsi}`);
+		// console.log(`pushed rsi ${rsi}`);
 		stack.push(rdi);        // push end index
-		console.log(`pushed rdi ${rdi}`);
+		// console.log(`pushed rdi ${rdi}`);
 		rdx = rdi;              // * mov rdx, rdi
 		rdx -= rsi;             // * sub rdx, rsi
 		stack.push(rdx);        // push length
-		console.log(`pushed rdx ${rdx}`);
+		// console.log(`pushed rdx ${rdx}`);
 
 
 		// LEFT
-		console.log('\nLEFT');
+		// console.log('\nLEFT');
 
 
-		// console log hell here
-
-		console.log(`before middle calculation`)
-		console.log(`rsi: ${rsi}`);
-		console.log(`rdi: ${rdi}`);
-		console.log(`rdx: ${rdx}`);
+		// console.log(`before middle calculation`)
+		// console.log(`rsi: ${rsi}`);
+		// console.log(`rdi: ${rdi}`);
+		// console.log(`rdx: ${rdx}`);
 
 		// goal: rdi needs the middle INDEX
 		rax = rdx;			// set the dividend as the length
@@ -217,7 +213,7 @@ function mergesort_asm() {
 		rdi += rsi;	// add to get the end ADDRESS
 
 
-		console.log('in left, middle: ', rdi);  // middle -> last element of left
+		// console.log('in left, middle: ', rdi);  // middle -> last element of left
 		_mergesort();
 
 
@@ -229,16 +225,16 @@ function mergesort_asm() {
 
 
 		// RIGHT
-		console.log('\nRIGHT');
+		// console.log('\nRIGHT');
 
 		rsi = stack.pop();                  // length -> pop the length of the previous array -> start index
-		console.log(`popped rsi: ${rsi}`);
+		// console.log(`popped rsi: ${rsi}`);
 
 		rdi = stack.pop();                  // end -> this pops the end index of the left side
-		console.log(`popped rdi: ${rdi}`);
+		// console.log(`popped rdi: ${rdi}`);
 
 		r8 = stack.pop();                   // start -> unneccesary for this
-		console.log(`popped r8: ${r8}`);
+		// console.log(`popped r8: ${r8}`);
 
 		// push it all again in order ( start, end, length )
 		stack.push(r8);
@@ -246,7 +242,7 @@ function mergesort_asm() {
 		stack.push(rsi);
 
 
-		console.log('in right, middle: ', rdi);
+		// console.log('in right, middle: ', rdi);
 		_mergesort();
 
 
@@ -259,34 +255,41 @@ function mergesort_asm() {
 		 * @param rdi - Right starting index
 		 * @param rdx - Length of the left array
 		 * @param rbx - Length of the right array
-		 * @param rax - buffer offset
-		 * ----------- i dont know about this below ----------------
-		 * @param dest - idk which register and I hate the rsi rdi left right and not source (rax) and dest (whatever) thing I do now
+		 * @param r12 - source array address
+		 * @param r13 - dest array address
+		 * -------- WORKING REGISTERS --------
+		 * @param rcx - left iterator
+		 * @param  r8 - right iterator
 		 */
 		const merge: () => void = () => {
 
-			rcx = 0;    // * xor rcx, rcx - left index
-			r8  = 0;    // * xor r8, r8 - right index
+			console.log('setting rax to 0');
+			// rax = 0;	// * xor rax, rax - buffer target index
+			rcx = 0;	// * xor rcx, rcx - left iterator
+			r8  = 0;	// * xor r8, r8   - right iterator
 
 
-			console.log('=====================');
-			console.log('merging');
-			console.log('=====================');
-			console.log(`rsi left: ${rsi}`);
-			console.log(`rdi right: ${rdi}`);
-			console.log(`rdx / left length: ${rdx}`);
-			console.log(`rbx / right length: ${rdx}`);
-			console.log('\n');
-
-
-			console.log(`thus wanting to merge rsi-rdx: ${arr.subarray(rsi, rsi + rdx)} and rdi-rbx: ${arr.subarray(rdi, rdi + rbx)}`);
+			// console.log('=====================');
+			// console.log('merging');
+			// console.log('=====================');
+			// console.log(`rax: ${rax}`);
+			// console.log(`rsi left: ${rsi}`);
+			// console.log(`rdi right: ${rdi}`);
+			// console.log(`rdx / left length: ${rdx}`);
+			// console.log(`rbx / right length: ${rdx}`);
+			// console.log('\n');
+			//
+			//
+			// console.log(`thus wanting to merge rsi-rdx: ${arr.subarray(rsi, rsi + rdx)} and rdi-rbx: ${arr.subarray(rdi, rdi + rbx)}`);
 
 			/**
 			 * Writing the value at r13 + rcx into the buffer
 			 * @param rcx - left index offset
 			 * @param rsi - left start address
 			 * @param r12 - source copy address
-			 * @param r13 - dest copy offset
+			 * ----------    ------------------
+			 * @param rax - dest copy iterator offset
+			 * @param r13 - dest copy start offset
 			 */
 			const push_left: () => void = () => {
 				console.log(' === MERGE LEFT === ');
@@ -303,12 +306,13 @@ function mergesort_asm() {
 				// write original + iterator into buffer + iterator
 				// write dword[rsi + rcx*4]  into dword[r13 + rcx*4]
 
-				arr[r13 + rsi + rcx] = arr[r12 + rsi + rcx];
+				arr[r13 + rax] = arr[r12 + rsi + rcx];
 
 				console.log(`arr after push/merge`);
 				console.log(arr);
 				rcx += 1;
 				rax += 1;
+				rcx += 1;
 			};
 
 			/**
@@ -325,7 +329,7 @@ function mergesort_asm() {
 				console.log(`r13 / offset: ${r13}`);
 
 				// write dword[rdi + r8*4] into dword[r13 + r8*4]
-				arr[r13 + rdi + r8] = arr[r12 + rdi + r8];
+				arr[r13 + rax] = arr[r12 + rdi + r8];
 
 
 				console.log(`arr after push/merge`);
@@ -333,10 +337,15 @@ function mergesort_asm() {
 
 				r8  += 1;
 				rax += 1;
+				rcx += 1;
 			};
 
 
 			const merge_while_loop: () => void = () => {
+
+				console.log(`in merge while loop -> rax: ${rax}`);
+
+
 				if (rcx >= rdx) { // * cmp rcx, rdx
 					console.log(`exiting merge_while due to left index: ${rcx} >= length: ${rdx}\n`);
 					return; // * je .exit_loop
@@ -356,12 +365,20 @@ function mergesort_asm() {
 				// .push_right:
 
 				// no two dereference operations in one instruction
-				r9 = arr[rsi + rcx];
-				if (r9 <= arr[rdi + r8]) {
-					console.log(`in while: ${r9} <= ${arr[r8]}, pushing left`);
+				// ↓ left source
+				r9 = arr[r12 + rsi + rcx];
+				console.log(`r12: ${r12}, should only ever be 0 in this simulation`);
+				console.log(`id_rsi: ${rsi}`);
+				console.log(`rdi: ${rdi}`);
+				console.log(` r8: ${r8}`);
+				console.log(`rcx: ${rcx}`);
+				console.log(`rax: ${rax}`);
+				// ↓ right source
+				if (r9 <= arr[r12 + rdi + r8]) {
+					console.log(`in while: left -> ${r9} <= right -> ${arr[r12 + rdi + r8]}, pushing left`);
 					push_left();
 				} else {
-					console.log(`in while: ${r9} > ${arr[r8]}, pushing right`);
+					console.log(`in while: left -> ${r9} > right -> ${arr[r12 + rdi + r8]}, pushing right`);
 					push_right();
 				}
 
@@ -377,7 +394,7 @@ function mergesort_asm() {
 			const merge_left_for_loop: () => void = () => {
 				// * cmp rcx, rdx
 				if (rcx >= rdx) {
-					console.log(`exiting left for: ${rcx} >= ${rbx}`);
+					console.log(`exiting left "for": ${rcx} >= ${rbx}`);
 					return;
 				}
 
@@ -396,7 +413,7 @@ function mergesort_asm() {
 			const merge_right_for_loop: () => void = () => {
 				// * cmp r8, rbx
 				if (r8 >= rbx) {
-					console.log(`exiting right for: ${r8} >= ${rbx}`);
+					console.log(`exiting right "for": ${r8} >= ${rbx}`);
 					return;
 				}
 
@@ -424,16 +441,25 @@ function mergesort_asm() {
 		rbx = rdi;  // * mov rbx, rdi
 		rbx -= rsi; // * sub rbx, rsi
 
+		rax = 0;
 		merge();
 	};
+
+
+	// copy the merge to the source
+	const copy_merge: () => void = () => {
+		// possiably another loop
+		// or just switch r12 and r13?
+	};
+	copy_merge();
 
 	_mergesort();
 
 	/**
-     * copy the full buffer back into the array
-     * @param rsi start of the buffer
-     * @param rdi length of the buffer and the array
-     */
+	 * copy the full buffer back into the array
+	 * @param rsi start of the buffer
+	 * @param rdi length of the buffer and the array
+	 */
 	const memcpy: () => void = () => {
 
 	};
