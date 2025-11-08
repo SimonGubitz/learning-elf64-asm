@@ -152,6 +152,10 @@ function mergesort_asm() {
 
 		// write the global memory offset into r13
 		r13 = rax;			// * mov r13, rax
+
+
+		// TODO: copy the array over
+		
 	};
 	init();
 
@@ -161,19 +165,20 @@ function mergesort_asm() {
 	 * Assembly idiomatic mergesort
 	 * @param rsi - start index
 	 * @param rdi - end index
-	 * @param r13 - memory offset
+	 * @param r12 - source address
+	 * @param r13 - dest address
 	 */
 	const _mergesort: () => void = () => {
 		rdx = rdi;
 		rdx -= rsi;
 		rdx += 1;
 
-		console.log('\nin mergesort with addr:', rsi, 'and end index:', rdi);
-		console.log(arr.subarray(rsi, rdi + 1));
-		console.log(`rdx is: ${rdx}`);
+		// console.log('\nin mergesort with addr:', rsi, 'and end index:', rdi);
+		// console.log(arr.subarray(rsi, rdi + 1));
+		// console.log(`rdx is: ${rdx}`);
 
 		if (rdx <= 1) {         // * cmp rdx 1 / jle .return jmp / .skip
-			console.log('\nreturning, due to rdx being: ' + rdx);
+			// console.log('\nreturning, due to rdx being: ' + rdx);
 			// * .return:
 
 			return;             // * ret
@@ -278,9 +283,9 @@ function mergesort_asm() {
 			// console.log(`rdx / left length: ${rdx}`);
 			// console.log(`rbx / right length: ${rdx}`);
 			// console.log('\n');
-			//
-			//
-			// console.log(`thus wanting to merge rsi-rdx: ${arr.subarray(rsi, rsi + rdx)} and rdi-rbx: ${arr.subarray(rdi, rdi + rbx)}`);
+
+
+			console.log(`thus wanting to merge rsi-rdx: ${arr.subarray(rsi, rsi + rdx)} and rdi-rbx: ${arr.subarray(rdi, rdi + rbx)}`);
 
 			/**
 			 * Writing the value at r13 + rcx into the buffer
@@ -293,10 +298,10 @@ function mergesort_asm() {
 			 */
 			const push_left: () => void = () => {
 				console.log(' === MERGE LEFT === ');
-				console.log(`rcx / offset: ${rcx}`);
-				console.log(`rsi /  start: ${rsi}`);
-				console.log(`r12 / offset: ${r12}`);
-				console.log(`r13 / offset: ${r13}`);
+				// console.log(`rcx / offset: ${rcx}`);
+				// console.log(`rsi /  start: ${rsi}`);
+				// console.log(`r12 / offset: ${r12}`);
+				// console.log(`r13 / offset: ${r13}`);
 
 				// * lea r10, [r13 + rsi]
 				// * mov r11, dword[r10 + rcx*4]
@@ -312,7 +317,7 @@ function mergesort_asm() {
 				console.log(arr);
 				rcx += 1;
 				rax += 1;
-				rcx += 1;
+				console.log("increase rcx and rax");
 			};
 
 			/**
@@ -322,36 +327,35 @@ function mergesort_asm() {
 			 * @param r13 - global offset
 			 */
 			const push_right: () => void = () => {
-				console.log(' === MERGE RIGHT === ');
-				console.log(`r8  / offset: ${r8}`);
-				console.log(`rdi /  start: ${rdi}`);
-				console.log(`r12 / offset: ${r12}`);
-				console.log(`r13 / offset: ${r13}`);
+				// console.log(' === MERGE RIGHT === ');
+				// console.log(`r8  / offset: ${r8}`);
+				// console.log(`rdi /  start: ${rdi}`);
+				// console.log(`r12 / offset: ${r12}`);
+				// console.log(`r13 / offset: ${r13}`);
 
 				// write dword[rdi + r8*4] into dword[r13 + r8*4]
 				arr[r13 + rax] = arr[r12 + rdi + r8];
 
 
-				console.log(`arr after push/merge`);
-				console.log(arr);
+				// console.log(`arr after push/merge`);
+				// console.log(arr);
 
 				r8  += 1;
 				rax += 1;
-				rcx += 1;
 			};
 
 
 			const merge_while_loop: () => void = () => {
 
-				console.log(`in merge while loop -> rax: ${rax}`);
+				// console.log(`in merge while loop -> rax: ${rax}`);
 
 
 				if (rcx >= rdx) { // * cmp rcx, rdx
-					console.log(`exiting merge_while due to left index: ${rcx} >= length: ${rdx}\n`);
+					// console.log(`exiting merge_while due to left index: ${rcx} >= length: ${rdx}\n`);
 					return; // * je .exit_loop
 				}
 				if (r8 >= rbx) { // * cmp r8, rbx
-					console.log(`exiting merge_while due to right index: ${r8} >= length: ${rbx}\n`);
+					// console.log(`exiting merge_while due to right index: ${r8} >= length: ${rbx}\n`);
 					return; // * je .exit_loop
 				}
 
@@ -367,18 +371,18 @@ function mergesort_asm() {
 				// no two dereference operations in one instruction
 				// ↓ left source
 				r9 = arr[r12 + rsi + rcx];
-				console.log(`r12: ${r12}, should only ever be 0 in this simulation`);
-				console.log(`id_rsi: ${rsi}`);
+				console.log(`r12: ${r12}`);
+				console.log(`rsi: ${rsi}`);
 				console.log(`rdi: ${rdi}`);
 				console.log(` r8: ${r8}`);
 				console.log(`rcx: ${rcx}`);
 				console.log(`rax: ${rax}`);
 				// ↓ right source
 				if (r9 <= arr[r12 + rdi + r8]) {
-					console.log(`in while: left -> ${r9} <= right -> ${arr[r12 + rdi + r8]}, pushing left`);
+					console.log(`in while: left -> ${r9} <= right -> ${arr[r12 + rdi + r8]}, pushing left \n`);
 					push_left();
 				} else {
-					console.log(`in while: left -> ${r9} > right -> ${arr[r12 + rdi + r8]}, pushing right`);
+					console.log(`in while: left -> ${r9} > right -> ${arr[r12 + rdi + r8]}, pushing right \n`);
 					push_right();
 				}
 
@@ -394,7 +398,7 @@ function mergesort_asm() {
 			const merge_left_for_loop: () => void = () => {
 				// * cmp rcx, rdx
 				if (rcx >= rdx) {
-					console.log(`exiting left "for": ${rcx} >= ${rbx}`);
+					// console.log(`exiting left "for": ${rcx} >= ${rbx}`);
 					return;
 				}
 
@@ -424,7 +428,16 @@ function mergesort_asm() {
 			};
 			merge_right_for_loop();
 
-			// pop here
+
+			// Switch dest and source here
+			// * xor r12, r13
+			// * xor r13, r12
+			// * xor r12, r13
+			let temp = r12;
+			r12 = r13;
+			r13 = temp;
+
+			// ? Copy merge here??
 
 			return;
 		};
@@ -492,6 +505,11 @@ function mergesort_asm() {
 rsi = 0;
 rdi = 4;
 fillArr(rdi - rsi + 1);
+// switch 2, 1 around, as to test the while left filling
+let temp = arr[3];
+arr[3] = arr[2];
+arr[2] = temp;
+
 console.log(arr);
 const merge_res = mergesort_asm();
 console.log(arr.subarray(rsi, rdi + 1))
