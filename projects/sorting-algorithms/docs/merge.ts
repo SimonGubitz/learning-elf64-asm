@@ -175,31 +175,6 @@ const fillArr = (length: number) => {
 
 function mergesort_asm() {
 
-
-
-	/**
-	 * copy the full buffer back into the array
-	 * @param 
-	 * @param rcx iterator
-	 */
-	const memcpy: () => void = () => {
-		rcx = rdx;	// * mov rcx, rdx
-		// * mov rsi, r12	; original array as source
-		// * mov rdi, r13	; buffer array as dest
-		// * rep movsd
-	
-		console.log("arr before copy");
-		console.log(arr);
-
-		for (let i = 0; i < rdx; i++) {
-			arr[r13 + i] = arr[r12 + i];
-		}
-
-		console.log("arr after copy");
-		console.log(arr);
-	};
-
-
 	// calculate the length once to allocate the correct amount of memory
 	rdx = rdi;
 	rdx -= rsi;
