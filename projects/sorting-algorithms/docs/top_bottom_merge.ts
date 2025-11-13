@@ -1,16 +1,14 @@
 // wikipedia.com/wiki/Merge_Sort
 
 // Array A[] has the items to sort; array B[] is a work array.
-function TopDownMergeSort(A: number[], B: number[], n: number)
-{
+function TopDownMergeSort(A: number[], B: number[], n: number) {
 	CopyArray(A, 0, n, B);           // one time copy of A[] to B[]
 	TopDownSplitMerge(A, 0, n, B);   // sort data from B[] into A[]
 }
 
 // Split A[] into 2 runs, sort both runs into B[], merge both runs from B[] to A[]
 // iBegin is inclusive; iEnd is exclusive (A[iEnd] is not in the set).
-function TopDownSplitMerge(B: number[], iBegin: number, iEnd: number, A: number[])
-{
+function TopDownSplitMerge(B: number[], iBegin: number, iEnd: number, A: number[]) {
 
 	if (iEnd - iBegin <= 1) {		// if run size == 1
 		return;				// consider it sorted
@@ -31,8 +29,7 @@ function TopDownSplitMerge(B: number[], iBegin: number, iEnd: number, A: number[
 //  Left source half is A[ iBegin:iMiddle-1].
 // Right source half is A[iMiddle:iEnd-1   ].
 // Result is            B[ iBegin:iEnd-1   ].
-function TopDownMerge(B: number[], iBegin: number, iMiddle: number, iEnd: number, A: number[])
-{
+function TopDownMerge(B: number[], iBegin: number, iMiddle: number, iEnd: number, A: number[]) {
 	i = iBegin, j = iMiddle;
 
 	// While there are elements in the left or right runs...
@@ -48,8 +45,7 @@ function TopDownMerge(B: number[], iBegin: number, iMiddle: number, iEnd: number
 	}
 }
 
-function CopyArray(A: number[], iBegin: number, iEnd: number, B: number[])
-{
+function CopyArray(A: number[], iBegin: number, iEnd: number, B: number[]) {
 	for (k = iBegin; k < iEnd; k++) {
 		B[k] = A[k];
 	}
